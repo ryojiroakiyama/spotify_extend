@@ -1,25 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { useEffect, useState } from 'react';
+import Profile from './profile';
+import { redirectToAuthCodeFlow, getAccessToken } from './auth';
+
+const clientId = "fe1e589d3d40496ba962cfb76cbe6ca0"; // Replace with your client id
 
 function App() {
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  async function fetchData() {
+    const params = new URLSearchParams(window.location.search); // Get query params from URL
+    const code = params.get("code");
+
+    if (!code) {
+      redirectToAuthCodeFlow(clientId);
+    } else {
+      checkAccessToken(code);
+    }
+  }
+
+  async function checkAccessToken(code: string) {
+    const accessToken = await getAccessToken(clientId, code);
+    
+    // TODO: strictModeによって、useEffectが重複して呼ばれると、getAccessTokenが失敗し、accessTokenがundefinedになる
+    // もっと良い対策方法があるはず
+    if (accessToken) {
+      setToken(accessToken);
+    }
+  }
+
+  if (token === null) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Profile token={token} />
+    </>
   );
 }
 
