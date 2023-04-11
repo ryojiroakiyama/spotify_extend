@@ -1,6 +1,6 @@
-import './App.css';
-import { UserProfile } from '../types/ types';
+import { UserProfile } from '../../types/ types';
 import { useEffect, useState } from 'react';
+import { fetchWebApi } from '../utils/api';
 
 interface Props {
     token: string;
@@ -12,21 +12,12 @@ export default function Profile(props: Props) {
 
     useEffect(() => {
         async function fetchData() {
-            const profile = await fetchProfile(token);
+            const profile = await fetchWebApi("v1/me", token);
             setProfile(profile);
         }
 
         fetchData();
     }, [token]);
-
-    async function fetchProfile(token: string): Promise<UserProfile> {
-
-        const result = await fetch("https://api.spotify.com/v1/me", {
-            method: "GET", headers: { Authorization: `Bearer ${token}` }
-        });
-
-        return await result.json();
-    }
 
     if (profile === null) {
         return <div>Loading...</div>;

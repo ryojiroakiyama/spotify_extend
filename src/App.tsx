@@ -1,12 +1,18 @@
 import './App.css';
 import { useEffect, useState } from 'react';
-import Profile from './profile';
-import { redirectToAuthCodeFlow, getAccessToken } from './auth';
+import Profile from './components/profile';
+import { redirectToAuthCodeFlow, getAccessToken } from './utils/auth';
 
 const clientId = "fe1e589d3d40496ba962cfb76cbe6ca0"; // Replace with your client id
 
+const menu = {
+  profile: "Profile",
+  tracks: "Tracks",
+}
+
 function App() {
   const [token, setToken] = useState<string | null>(null);
+  const [select, setSelect] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -37,9 +43,19 @@ function App() {
     return <div>Loading...</div>;
   }
 
+  if (select === null) {
+    return (
+      <div>
+        <button onClick={() => setSelect(menu.profile)}>Profile</button>
+        <button onClick={() => setSelect(menu.tracks)}>Tracks</button>
+      </div>
+    )
+  }
+
   return (
     <>
-      <Profile token={token} />
+      {select === menu.profile && <Profile token={token} />}
+      {select === menu.tracks && <div>Tracks</div>}
     </>
   );
 }
