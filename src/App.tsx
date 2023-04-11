@@ -9,25 +9,25 @@ function App() {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
+    async function fetchData() {
+      const params = new URLSearchParams(window.location.search); // Get query params from URL
+      const code = params.get("code");
+
+      if (code == null) {
+        redirectToAuthCodeFlow(clientId);
+      } else if (token === null) {
+        checkAccessToken(code);
+      }
+    }
+
     fetchData();
   }, []);
-
-  async function fetchData() {
-    const params = new URLSearchParams(window.location.search); // Get query params from URL
-    const code = params.get("code");
-
-    if (!code) {
-      redirectToAuthCodeFlow(clientId);
-    } else {
-      checkAccessToken(code);
-    }
-  }
 
   async function checkAccessToken(code: string) {
     const accessToken = await getAccessToken(clientId, code);
     
     // TODO: strictModeによって、useEffectが重複して呼ばれると、getAccessTokenが失敗し、accessTokenがundefinedになる
-    // もっと良い対策方法があるはず
+    // そのため、accessTokenがundefinedの場合は、何もしない, もっと良い方法があるはず。
     if (accessToken) {
       setToken(accessToken);
     }
