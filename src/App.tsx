@@ -21,7 +21,7 @@ function App() {
 
       if (code == null) {
         redirectToAuthCodeFlow(clientId);
-      } else if (token === null) {
+      } else {
         checkAccessToken(code);
       }
     }
@@ -32,8 +32,9 @@ function App() {
   async function checkAccessToken(code: string) {
     const accessToken = await getAccessToken(clientId, code);
     
-    // TODO: strictModeによって、useEffectが重複して呼ばれると、getAccessTokenが失敗し、accessTokenがundefinedになる
-    // そのため、accessTokenがundefinedの場合は、何もしない, もっと良い方法があるはず。
+    // TODO: strictModeによって二度レンダリングが行われる->getAccessTokenが重複すると失敗し、二度目に取得したaccessTokenがundefinedになってしまう。
+    //       そのため、undefinedのaccessTokenのsetを防ぐためにこうしているが、もっと良い方法があるはず。
+    //       レンダリング自体が二度行われるので、既に取得したかどうかのステートを用意しても一度目と二度目でそのステートを共有できないので(二度目はステートが再定義される)、判定する術がわからない。
     if (accessToken) {
       setToken(accessToken);
     }
