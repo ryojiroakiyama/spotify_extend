@@ -11,7 +11,8 @@ export default function Tracks(props: Props) {
 
     useEffect(() => {
         async function fetchData() {
-            const tracks = await fetchWebApi("v1/me/top/tracks?time_range=short_term&limit=5", token);
+            const tracks = await fetchWebApi("v1/me/tracks", token);
+            // const tracks = await fetchWebApi("v1/me/top/tracks?time_range=short_term&limit=5", token);
             console.log("tracks: ", tracks);
             setTracks(tracks);
         }
