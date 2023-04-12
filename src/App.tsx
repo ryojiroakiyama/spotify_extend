@@ -2,6 +2,7 @@ import './App.css';
 import { useEffect, useState } from 'react';
 import Profile from './components/profile';
 import { redirectToAuthCodeFlow, getAccessToken } from './utils/auth';
+import Tracks from './components/tracks';
 
 const clientId = "fe1e589d3d40496ba962cfb76cbe6ca0"; // Replace with your client id
 
@@ -56,7 +57,7 @@ function App() {
   return (
     <>
       {select === menu.profile && <Profile token={token} />}
-      {select === menu.tracks && <div>Tracks</div>}
+      {select === menu.tracks && <Tracks token={token} />}
     </>
   );
 }
