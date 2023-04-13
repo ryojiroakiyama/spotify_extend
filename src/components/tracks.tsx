@@ -5,47 +5,66 @@ interface Props {
     token: string;
 }
 
-//NEXT STEP:保存されているトラックを全て取得
-//          プレイリストを全て取得
-//          プレイリストのトラックを全て取得
-
 export default function Tracks(props: Props) {
     const { token } = props;
-    const [savedTracks, setSavedTracks] = useState<any | null>(null);
-    const [playlists, setPlaylists] = useState<any | null>(null);
+    const [savedTracks, setSavedTracks] = useState<string[] | null>(null);
     const [playlistTracks, setPlaylistTracks] = useState<any | null>(null);
 
     useEffect(() => {
         async function fetchData() {
+            //TODO: この二つ非同期でもいい
             await getSavedTracks();
-            await getPlaylistsTracks();
-            await getTracksFromPlaylist(playlists.items[0].id);
+            await getPlaylistTracks();
         }
 
         fetchData();
     }, [token]);
 
     async function getSavedTracks() {
-        const tracks = await fetchWebApi("v1/me/tracks?limit=50&offset=0", token);
+        const tracks = await getTracks("v1/me/tracks?limit=50&offset=0");
         setSavedTracks(tracks);
     }
 
-    async function getPlaylistsTracks() {
-        const playlists = await fetchWebApi("v1/me/playlists?limit=50&offset=0", token);
-        setPlaylists(playlists);
+    async function getPlaylistTracks() {
+        let endpointPlaylists: string | null = "v1/me/playlists?limit=50&offset=0";
+        let tracks: string[] = [];
+
+        while (endpointPlaylists !== null) {
+            const response: any = await fetchWebApi(endpointPlaylists, token);
+
+            for (let i = 0; i < response.items.length; i++) {
+                const tracksFromPlaylist = await getTracksFromPlaylist(response.items[i].id);
+                tracks = tracks.concat(tracksFromPlaylist);
+            }
+
+            endpointPlaylists = response.next ? extractEndpoint(response.next) : null;
+            console.log("getPlaylistTracks: ", endpointPlaylists);
+        }
+        setPlaylistTracks(tracks);
+    }
+    
+    async function getTracksFromPlaylist(playlistId: string) : Promise<string[]> {
+        return await getTracks(`v1/playlists/${playlistId}/tracks`);
     }
 
-    async function getTracksFromPlaylist(playlistId: string) {
-        const tracks = await fetchWebApi(`v1/playlists/${playlistId}/tracks`, token);
-        setPlaylistTracks(tracks);
+    async function getTracks(endpoint: string | null) {
+        let tracks: string[] = [];
+
+        while (endpoint !== null) {
+            const response = await fetchWebApi(endpoint, token);
+            tracks = tracks.concat(response.items.map((item: any) => item.track.id));
+            endpoint = response.next ? extractEndpoint(response.next) : null;
+            console.log("getTracks: ", endpoint);
+        }
+        return tracks;
+    }
+
+    function extractEndpoint(url: string) {
+        return url.replace('https://api.spotify.com/', '');
     }
 
     if (savedTracks === null) {
         return <div>Loading saved tracks ...</div>;
-    }
-
-    if (playlists === null) {
-        return <div>Loading playlists ...</div>;
     }
 
     if (playlistTracks === null) {
@@ -55,40 +74,15 @@ export default function Tracks(props: Props) {
     return (
         <>
         <h1>Tracks</h1>
-        {/* <div>
-            {tracks.items.map((item: any) => {
-                return (
-                    <div key={item.track.id}>
-                        <img src={item.track.album.images[0].url} alt="Profile" width="200" height="200" />
-                        <div>{item.track.name}</div>
-                        <div>{item.track.artists[0].name}</div>
-                    </div>
-                )
-            })
-            }
-        </div> */}
         <div>
-            {playlists.items.map((item: any) => {
-                return (
-                    <div key={item.id}>
-                        <div>{item.name}</div>
-                        <div>{item.tracks.href}</div>
-                    </div>
-                )
-            })
-            }
+            <div>track count: {savedTracks.length}</div>
+            <div>1: {savedTracks[0]}</div>
+            <div>2: {savedTracks[1]}</div>
         </div>
         <div>
-            {playlistTracks.items.map((item: any) => {
-                return (
-                    <div key={item.track.id}>
-                        <img src={item.track.album.images[0].url} alt="Profile" width="200" height="200" />
-                        <div>{item.track.name}</div>
-                        <div>{item.track.artists[0].name}</div>
-                    </div>
-                )
-            })
-            }
+            <div>track count: {playlistTracks.length}</div>
+            <div>1: {playlistTracks[0]}</div>
+            <div>2: {playlistTracks[1]}</div>
         </div>
         </>
     );
