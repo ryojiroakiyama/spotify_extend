@@ -9,6 +9,7 @@ export default function Tracks(props: Props) {
     const { token } = props;
     const [savedTracks, setSavedTracks] = useState<string[] | null>(null);
     const [playlistTracks, setPlaylistTracks] = useState<any | null>(null);
+    const [notInPlaylistTracks, setNotInPlaylistTracks] = useState<any | null>(null);
 
     useEffect(() => {
         async function fetchData() {
@@ -19,6 +20,30 @@ export default function Tracks(props: Props) {
 
         fetchData();
     }, [token]);
+
+    useEffect(() => {
+        async function fetchData() {
+            await getNotInPlaylistTracks();
+        }
+
+        fetchData();
+    }, [savedTracks, playlistTracks]);
+
+    async function getNotInPlaylistTracks() {
+        if (savedTracks === null || playlistTracks === null) {
+            return;
+        }
+
+        let tracks: string[] = [];
+
+        for (let i = 0; i < savedTracks.length; i++) {
+            if (!playlistTracks.includes(savedTracks[i])) {
+                tracks.push(savedTracks[i]);
+            }
+        }
+
+        setNotInPlaylistTracks(tracks);
+    }
 
     async function getSavedTracks() {
         let tracks: string[] = [];
@@ -99,6 +124,11 @@ export default function Tracks(props: Props) {
             <div>track count: {playlistTracks.length}</div>
             <div>1: {playlistTracks[0]}</div>
             <div>2: {playlistTracks[1]}</div>
+        </div>
+        <div>
+            <div>track count: {notInPlaylistTracks?.length}</div>
+            <div>1: {notInPlaylistTracks?.[0]}</div>
+            <div>2: {notInPlaylistTracks?.[1]}</div>
         </div>
         </>
     );
