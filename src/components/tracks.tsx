@@ -21,42 +21,58 @@ export default function Tracks(props: Props) {
     }, [token]);
 
     async function getSavedTracks() {
-        const tracks = await getTracks("v1/me/tracks?limit=50&offset=0");
+        let tracks: string[] = [];
+
+        const tracksItems = await getAllItems("v1/me/tracks");
+        tracks = tracks.concat(tracksItems.map((item: any) => item.track.id));
+
         setSavedTracks(tracks);
     }
 
     async function getPlaylistTracks() {
-        let endpointPlaylists: string | null = "v1/me/playlists?limit=50&offset=0";
+        const playlists = await getPlaylists();
+
         let tracks: string[] = [];
 
-        while (endpointPlaylists !== null) {
-            const response: any = await fetchWebApi(endpointPlaylists, token);
-
-            for (let i = 0; i < response.items.length; i++) {
-                const tracksFromPlaylist = await getTracksFromPlaylist(response.items[i].id);
-                tracks = tracks.concat(tracksFromPlaylist);
-            }
-
-            endpointPlaylists = response.next ? extractEndpoint(response.next) : null;
-            console.log("getPlaylistTracks: ", endpointPlaylists);
+        for (let i = 0; i < playlists.length; i++) {
+            const tracksFromPlaylist = await getTracksFromPlaylist(playlists[i].id);
+            tracks = tracks.concat(tracksFromPlaylist);
         }
+
         setPlaylistTracks(tracks);
     }
-    
-    async function getTracksFromPlaylist(playlistId: string) : Promise<string[]> {
-        return await getTracks(`v1/playlists/${playlistId}/tracks`);
-    }
 
-    async function getTracks(endpoint: string | null) {
+    async function getPlaylists() {
+        let playlists: any[] = [];
+
+        const playlistsItems = await getAllItems("v1/me/playlists");
+        playlists = playlists.concat(playlistsItems);
+
+        return playlists;
+    }
+    
+    async function getTracksFromPlaylist(playlistId: string): Promise<string[]> {
         let tracks: string[] = [];
 
-        while (endpoint !== null) {
-            const response = await fetchWebApi(endpoint, token);
-            tracks = tracks.concat(response.items.map((item: any) => item.track.id));
-            endpoint = response.next ? extractEndpoint(response.next) : null;
-            console.log("getTracks: ", endpoint);
-        }
+        const tracksItems = await getAllItems(`v1/playlists/${playlistId}/tracks`);
+        tracks = tracks.concat(tracksItems.map((item: any) => item.track.id));
+
         return tracks;
+    }
+
+    // TODO: spotifyUrl(endpoint)という関数を作り、それをfetchWebApiの引数に渡す
+
+    async function getAllItems(endpoint: string) {
+        let endpointIterate: string | null = endpoint + "?offset=0&limit=50";
+        let items: any[] = [];
+
+        while (endpointIterate !== null) {
+            const response: any = await fetchWebApi(endpointIterate, token);
+            items = items.concat(response.items);
+            endpointIterate = response.next ? extractEndpoint(response.next) : null;
+        }
+
+        return items;
     }
 
     function extractEndpoint(url: string) {
