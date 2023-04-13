@@ -7,13 +7,14 @@ interface Props {
 
 export default function Tracks(props: Props) {
     const { token } = props;
-    const [savedTracks, setSavedTracks] = useState<string[] | null>(null);
+    const [savedTracks, setSavedTracks] = useState<any | null>(null);
     const [playlistTracks, setPlaylistTracks] = useState<any | null>(null);
     const [notInPlaylistTracks, setNotInPlaylistTracks] = useState<any | null>(null);
 
+    //TODO: savedTracksとplaylistTracksはステートの必要がないかも
+    //TODO: それぞれのtracksの中に重複があるかもしれないので、重複を削除する?テストする？
     useEffect(() => {
         async function fetchData() {
-            //TODO: この二つ非同期でもいい
             await getSavedTracks();
             await getPlaylistTracks();
         }
@@ -36,20 +37,22 @@ export default function Tracks(props: Props) {
 
         let tracks: string[] = [];
 
-        for (let i = 0; i < savedTracks.length; i++) {
-            if (!playlistTracks.includes(savedTracks[i])) {
-                tracks.push(savedTracks[i]);
+        savedTracks.forEach((savedTrack: any) => {
+            const trackId = savedTrack.id;
+            const isNotInPlaylist = playlistTracks.every((playlistTrack: any) => playlistTrack.id !== trackId);
+            if (isNotInPlaylist) {
+                tracks.push(savedTrack);
             }
-        }
+        });
 
         setNotInPlaylistTracks(tracks);
     }
 
     async function getSavedTracks() {
-        let tracks: string[] = [];
+        let tracks: any[] = [];
 
         const tracksItems = await getAllItems("v1/me/tracks");
-        tracks = tracks.concat(tracksItems.map((item: any) => item.track.id));
+        tracks = tracks.concat(tracksItems.map((item: any) => item.track));
 
         setSavedTracks(tracks);
     }
@@ -77,15 +80,16 @@ export default function Tracks(props: Props) {
     }
     
     async function getTracksFromPlaylist(playlistId: string): Promise<string[]> {
-        let tracks: string[] = [];
+        let tracks: any[] = [];
 
         const tracksItems = await getAllItems(`v1/playlists/${playlistId}/tracks`);
-        tracks = tracks.concat(tracksItems.map((item: any) => item.track.id));
+        tracks = tracks.concat(tracksItems.map((item: any) => item.track));
 
         return tracks;
     }
 
     // TODO: spotifyUrl(endpoint)という関数を作り、それをfetchWebApiの引数に渡す
+    // TODO: すべての曲に関して情報を用意して、どこにも属していない曲をハイライトするのもあり。リンクなどUIを発達させる
 
     async function getAllItems(endpoint: string) {
         let endpointIterate: string | null = endpoint + "?offset=0&limit=50";
@@ -112,23 +116,26 @@ export default function Tracks(props: Props) {
         return <div>Loading playlist tracks ...</div>;
     }
 
+    if (notInPlaylistTracks === null) {
+        return <div>Loading not in playlist tracks ...</div>;
+    }
+
     return (
         <>
         <h1>Tracks</h1>
         <div>
             <div>track count: {savedTracks.length}</div>
-            <div>1: {savedTracks[0]}</div>
-            <div>2: {savedTracks[1]}</div>
         </div>
         <div>
             <div>track count: {playlistTracks.length}</div>
-            <div>1: {playlistTracks[0]}</div>
-            <div>2: {playlistTracks[1]}</div>
         </div>
         <div>
-            <div>track count: {notInPlaylistTracks?.length}</div>
-            <div>1: {notInPlaylistTracks?.[0]}</div>
-            <div>2: {notInPlaylistTracks?.[1]}</div>
+            {notInPlaylistTracks.map((track: any) => (
+                <div id={track.id}  style={{margin: '10px', border: '1px solid black'}}>
+                    <div>{track.name}</div>
+                    <div>{track.artists.map((artist: any) => artist.name).join(', ')}</div>
+                </div>
+            ))}
         </div>
         </>
     );
