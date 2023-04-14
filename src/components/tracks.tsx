@@ -6,9 +6,9 @@ interface Props {
     token: string;
 }
 
-//TODO: すべての曲に関して情報を用意して、どこにも属していない曲をハイライトするのもあり。リンクなどUIを発達させる
-//TODO: 時間を考えて、savedTracksとplaylistsTracksを50ずつ取得して表示するのあり、nextjsにして先に取得しておくことを考える
-//MEMO: それぞれのtracksの中に重複があるかもしれないので、重複を削除するかテストする
+//1. playlistごとに曲情報を持たせる
+//2. savedTracksを50ずつ取得して、playlistTracksに含まれているかどうかを判定する、ボタンで次のsavedTracksを取得して、playlistTracksに含まれているかどうかを判定する
+//3. 属しているプレイリストを表示する、複数属す場合は色付け、どこにも属していない場合はハイライトする
 export default function Tracks(props: Props) {
     const { token } = props;
     const [savedTracks, setSavedTracks] = useState<Track[] | null>(null);
