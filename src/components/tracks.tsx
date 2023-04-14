@@ -1,22 +1,28 @@
 import { useEffect, useState } from 'react';
-import { fetchWebApi } from '../utils/api';
+import { getSavedTracks, getPlaylistTracks, getNotInPlaylistTracks } from '../utils/getFuncs';
+import { Track } from '../../types/types';
 
 interface Props {
     token: string;
 }
 
+//TODO: すべての曲に関して情報を用意して、どこにも属していない曲をハイライトするのもあり。リンクなどUIを発達させる
+//TODO: 時間を考えて、savedTracksとplaylistsTracksを50ずつ取得して表示するのあり、nextjsにして先に取得しておくことを考える
+//MEMO: それぞれのtracksの中に重複があるかもしれないので、重複を削除するかテストする
 export default function Tracks(props: Props) {
     const { token } = props;
-    const [savedTracks, setSavedTracks] = useState<any | null>(null);
-    const [playlistTracks, setPlaylistTracks] = useState<any | null>(null);
-    const [notInPlaylistTracks, setNotInPlaylistTracks] = useState<any | null>(null);
+    const [savedTracks, setSavedTracks] = useState<Track[] | null>(null);
+    const [playlistTracks, setPlaylistTracks] = useState<Track[] | null>(null);
+    const [notInPlaylistTracks, setNotInPlaylistTracks] = useState<Track[] | null>(null);
 
-    //TODO: savedTracksとplaylistTracksはステートの必要がないかも
-    //TODO: それぞれのtracksの中に重複があるかもしれないので、重複を削除する?テストする？
     useEffect(() => {
         async function fetchData() {
-            await getSavedTracks();
-            await getPlaylistTracks();
+            getSavedTracks(token).then((tracks) => {
+                setSavedTracks(tracks);
+            });
+            getPlaylistTracks(token).then((tracks) => {
+                setPlaylistTracks(tracks);
+            });
         }
 
         fetchData();
@@ -24,89 +30,16 @@ export default function Tracks(props: Props) {
 
     useEffect(() => {
         async function fetchData() {
-            await getNotInPlaylistTracks();
+            if (savedTracks === null || playlistTracks === null) {
+                return;
+            }
+            getNotInPlaylistTracks(savedTracks, playlistTracks).then((tracks) => {
+                setNotInPlaylistTracks(tracks);
+            });
         }
 
         fetchData();
     }, [savedTracks, playlistTracks]);
-
-    async function getNotInPlaylistTracks() {
-        if (savedTracks === null || playlistTracks === null) {
-            return;
-        }
-
-        let tracks: string[] = [];
-
-        savedTracks.forEach((savedTrack: any) => {
-            const trackId = savedTrack.id;
-            const isNotInPlaylist = playlistTracks.every((playlistTrack: any) => playlistTrack.id !== trackId);
-            if (isNotInPlaylist) {
-                tracks.push(savedTrack);
-            }
-        });
-
-        setNotInPlaylistTracks(tracks);
-    }
-
-    async function getSavedTracks() {
-        let tracks: any[] = [];
-
-        const tracksItems = await getAllItems("v1/me/tracks");
-        tracks = tracks.concat(tracksItems.map((item: any) => item.track));
-
-        setSavedTracks(tracks);
-    }
-
-    async function getPlaylistTracks() {
-        const playlists = await getPlaylists();
-
-        let tracks: string[] = [];
-
-        for (let i = 0; i < playlists.length; i++) {
-            const tracksFromPlaylist = await getTracksFromPlaylist(playlists[i].id);
-            tracks = tracks.concat(tracksFromPlaylist);
-        }
-
-        setPlaylistTracks(tracks);
-    }
-
-    async function getPlaylists() {
-        let playlists: any[] = [];
-
-        const playlistsItems = await getAllItems("v1/me/playlists");
-        playlists = playlists.concat(playlistsItems);
-
-        return playlists;
-    }
-    
-    async function getTracksFromPlaylist(playlistId: string): Promise<string[]> {
-        let tracks: any[] = [];
-
-        const tracksItems = await getAllItems(`v1/playlists/${playlistId}/tracks`);
-        tracks = tracks.concat(tracksItems.map((item: any) => item.track));
-
-        return tracks;
-    }
-
-    // TODO: spotifyUrl(endpoint)という関数を作り、それをfetchWebApiの引数に渡す
-    // TODO: すべての曲に関して情報を用意して、どこにも属していない曲をハイライトするのもあり。リンクなどUIを発達させる
-
-    async function getAllItems(endpoint: string) {
-        let endpointIterate: string | null = endpoint + "?offset=0&limit=50";
-        let items: any[] = [];
-
-        while (endpointIterate !== null) {
-            const response: any = await fetchWebApi(endpointIterate, token);
-            items = items.concat(response.items);
-            endpointIterate = response.next ? extractEndpoint(response.next) : null;
-        }
-
-        return items;
-    }
-
-    function extractEndpoint(url: string) {
-        return url.replace('https://api.spotify.com/', '');
-    }
 
     if (savedTracks === null) {
         return <div>Loading saved tracks ...</div>;

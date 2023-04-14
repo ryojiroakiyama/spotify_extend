@@ -1,6 +1,6 @@
-import { UserProfile } from '../../types/ types';
+import { UserProfile } from '../../types/types';
 import { useEffect, useState } from 'react';
-import { fetchWebApi } from '../utils/api';
+import { fetchWebApi, spotifyUrl } from '../utils/api';
 
 interface Props {
     token: string;
@@ -12,7 +12,7 @@ export default function Profile(props: Props) {
 
     useEffect(() => {
         async function fetchData() {
-            const profile = await fetchWebApi("v1/me", token);
+            const profile = await fetchWebApi(spotifyUrl("v1/me"), token);
             setProfile(profile);
         }
 
@@ -20,7 +20,7 @@ export default function Profile(props: Props) {
     }, [token]);
 
     if (profile === null) {
-        return <div>Loading...</div>;
+        return <div>Loading profile ...</div>;
     }
 
     return (

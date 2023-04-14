@@ -21,3 +21,19 @@ export interface Image {
     height: number;
     width: number;
 }
+
+export interface Track {
+    id: string;
+    name: string;
+    artists: Artist[];
+}
+
+export interface Artist {
+    id: string;
+    name: string;
+}
+
+export interface Playlist {
+    id: string;
+    name: string;
+}
