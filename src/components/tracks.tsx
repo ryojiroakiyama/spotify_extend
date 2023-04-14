@@ -6,7 +6,7 @@ interface Props {
     token: string;
 }
 
-//1. playlistごとに曲情報を持たせる
+//1. playlistごとに曲情報を持たせる(playlistはownerで自分のものか判断できる)
 //2. savedTracksを50ずつ取得して、playlistTracksに含まれているかどうかを判定する、ボタンで次のsavedTracksを取得して、playlistTracksに含まれているかどうかを判定する
 //3. 属しているプレイリストを表示する、複数属す場合は色付け、どこにも属していない場合はハイライトする
 export default function Tracks(props: Props) {
