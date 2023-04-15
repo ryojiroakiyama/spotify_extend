@@ -1,18 +1,17 @@
 import { useEffect, useState } from 'react';
-import { getSavedTracks, getPlaylistTracks, getNotInPlaylistTracks } from '../utils/getFuncs';
-import { Track } from '../../types/types';
+import { getSavedTracks, getPlaylistsWithTracks, getNotInPlaylistTracks } from '../utils/getFuncs';
+import { Track, Artist, PlaylistWithTracks } from '../../types/types';
 
 interface Props {
     token: string;
 }
 
-//1. playlistごとに曲情報を持たせる(playlistはownerで自分のものか判断できる)
 //2. savedTracksを50ずつ取得して、playlistTracksに含まれているかどうかを判定する、ボタンで次のsavedTracksを取得して、playlistTracksに含まれているかどうかを判定する
 //3. 属しているプレイリストを表示する、複数属す場合は色付け、どこにも属していない場合はハイライトする
 export default function Tracks(props: Props) {
     const { token } = props;
     const [savedTracks, setSavedTracks] = useState<Track[] | null>(null);
-    const [playlistTracks, setPlaylistTracks] = useState<Track[] | null>(null);
+    const [playlistsWithTracks, setPlaylistsWithTracks] = useState<PlaylistWithTracks[] | null>(null);
     const [notInPlaylistTracks, setNotInPlaylistTracks] = useState<Track[] | null>(null);
 
     useEffect(() => {
@@ -20,8 +19,8 @@ export default function Tracks(props: Props) {
             getSavedTracks(token).then((tracks) => {
                 setSavedTracks(tracks);
             });
-            getPlaylistTracks(token).then((tracks) => {
-                setPlaylistTracks(tracks);
+            getPlaylistsWithTracks(token).then((tracks) => {
+                setPlaylistsWithTracks(tracks);
             });
         }
 
@@ -30,22 +29,22 @@ export default function Tracks(props: Props) {
 
     useEffect(() => {
         async function fetchData() {
-            if (savedTracks === null || playlistTracks === null) {
+            if (savedTracks === null || playlistsWithTracks === null) {
                 return;
             }
-            getNotInPlaylistTracks(savedTracks, playlistTracks).then((tracks) => {
+            getNotInPlaylistTracks(savedTracks, playlistsWithTracks).then((tracks) => {
                 setNotInPlaylistTracks(tracks);
             });
         }
 
         fetchData();
-    }, [savedTracks, playlistTracks]);
+    }, [savedTracks, playlistsWithTracks]);
 
     if (savedTracks === null) {
         return <div>Loading saved tracks ...</div>;
     }
 
-    if (playlistTracks === null) {
+    if (playlistsWithTracks === null) {
         return <div>Loading playlist tracks ...</div>;
     }
 
@@ -57,16 +56,16 @@ export default function Tracks(props: Props) {
         <>
         <h1>Tracks</h1>
         <div>
-            <div>track count: {savedTracks.length}</div>
+            <div>saved track count: {savedTracks.length}</div>
         </div>
         <div>
-            <div>track count: {playlistTracks.length}</div>
+            <div>not in playlist track count: {notInPlaylistTracks.length}</div>
         </div>
         <div>
-            {notInPlaylistTracks.map((track: any) => (
+            {notInPlaylistTracks.map((track: Track) => (
                 <div id={track.id}  style={{margin: '10px', border: '1px solid black'}}>
                     <div>{track.name}</div>
-                    <div>{track.artists.map((artist: any) => artist.name).join(', ')}</div>
+                    <div>{track.artists.map((artist: Artist) => artist.name).join(', ')}</div>
                 </div>
             ))}
         </div>

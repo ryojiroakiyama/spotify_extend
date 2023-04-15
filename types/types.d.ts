@@ -33,7 +33,11 @@ export interface Artist {
     name: string;
 }
 
-export interface Playlist {
+export interface PlaylistWithTracks {
     id: string;
     name: string;
+    owner: {
+        id: string;
+    }
+    tracks: Track[];
 }

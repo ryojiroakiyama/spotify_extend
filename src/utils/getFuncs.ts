@@ -1,11 +1,13 @@
 import { fetchAllItems } from "./api";
-import { Track, Playlist } from '../../types/types';
+import { Track, PlaylistWithTracks } from '../../types/types';
 
-export async function getNotInPlaylistTracks(savedTracks: Track[], playlistTracks: Track[]) {
+export async function getNotInPlaylistTracks(savedTracks: Track[], playlistsWithTracks: PlaylistWithTracks[]) {
     let tracks: Track[] = [];
 
     savedTracks.forEach((savedTrack: Track) => {
-        const isNotInPlaylist = playlistTracks.every((playlistTrack: Track) => playlistTrack.id !== savedTrack.id);
+        const isNotInPlaylist = playlistsWithTracks.every((playlist: PlaylistWithTracks) => {
+            return playlist.tracks.every((playlistTrack: Track) => playlistTrack.id !== savedTrack.id);
+        });
         if (isNotInPlaylist) {
             tracks.push(savedTrack);
         }
@@ -23,23 +25,28 @@ export async function getSavedTracks(token: string) {
     return tracks;
 }
 
-export async function getPlaylistTracks(token: string) {
-    const playlists = await getPlaylists(token);
-    let tracks: Track[] = [];
+export async function getPlaylistsWithTracks(token: string) {
+    let playlistsWithTracks = await getMyPlaylists(token);
 
-    for (let i = 0; i < playlists.length; i++) {
-        const tracksFromPlaylist = await getTracksFromPlaylist(playlists[i].id, token);
-        tracks = tracks.concat(tracksFromPlaylist);
+    for (let i = 0; i < playlistsWithTracks.length; i++) {
+        const tracksFromPlaylist = await getTracksFromPlaylist(playlistsWithTracks[i].id, token);
+        playlistsWithTracks[i].tracks = tracksFromPlaylist;
     }
 
-    return tracks;
+    return playlistsWithTracks;
 }
 
-async function getPlaylists(token: string) {
-    let playlists: Playlist[] = [];
+async function getMyPlaylists(token: string) {
+    let playlists: PlaylistWithTracks[] = [];
+
+    //TODO: profile情報から自分のIDを取得する
+    const myId = "i2ygbw453jwitgc7s84ly0nf3";
 
     const playlistsItems = await fetchAllItems("v1/me/playlists", token);
     playlists = playlists.concat(playlistsItems);
+
+    // 自分のプレイリスト以外を除外
+    playlists = playlists.filter((playlist: PlaylistWithTracks) => playlist.owner.id === myId);
 
     return playlists;
 }

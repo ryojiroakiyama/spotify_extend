@@ -16,6 +16,7 @@ export async function fetchAllItems(endpoint: string, token: string) {
   let items: any[] = [];
 
   while (url !== null) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));//TODO: 調節またはロジック変更
       const response: any = await fetchWebApi(url, token);
       items = items.concat(response.items);
       url = response.next;
