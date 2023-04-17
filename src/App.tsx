@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Profile from './components/profile';
 import { redirectToAuthCodeFlow, getAccessToken } from './utils/auth';
 import Tracks from './components/tracks';
+import Chat from './components/chat';
 
 const clientId = "fe1e589d3d40496ba962cfb76cbe6ca0"; // Replace with your client id
 
@@ -51,6 +52,7 @@ function App() {
       <div>
         <button onClick={() => setSelect(menu.profile)}>Profile</button>
         <button onClick={() => setSelect(menu.tracks)}>Tracks</button>
+        <Chat />
       </div>
     )
   }
