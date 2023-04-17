@@ -67,8 +67,9 @@ export default function Tracks(props: Props) {
         <div>
             {notInPlaylistTracks.map((track: Track) => (
                 <div id={track.id}  style={{margin: '10px', border: '1px solid black'}}>
-                    <div>{track.name}</div>
-                    <div>{track.artists.map((artist: Artist) => artist.name).join(', ')}</div>
+                    <div>track name: {track.name}</div>
+                    <div>artist name: {track.artists.map((artist: Artist) => artist.name).join(', ')}</div>
+                    <div>link: {track.uri} </div>
                 </div>
             ))}
         </div>
