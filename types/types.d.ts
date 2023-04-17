@@ -27,6 +27,13 @@ export interface Track {
     name: string;
     uri: string;
     artists: Artist[];
+    analysis: Analysis;
+}
+
+export interface Analysis {
+    track: {
+        tempo: number;
+    }
 }
 
 export interface Artist {
