@@ -6,7 +6,10 @@ interface Props {
     token: string;
 }
 
-//2. savedTracksを50ずつ取得して、playlistTracksに含まれているかどうかを判定する、ボタンで次のsavedTracksを取得して、playlistTracksに含まれているかどうかを判定する
+//MEMO: UX改善として、50ずつplaylistTracksに含まれているかどうかを判定する。
+//      savedTracksを50ずつ取得+全てをspotifyから取得していなければnext=trueにしておく。
+//      next50ボタンで次のsavedTracksを取得するようにする。
+
 //3. 属しているプレイリストを表示する、複数属す場合は色付け、どこにも属していない場合はハイライトする
 export default function Tracks(props: Props) {
     const { token } = props;
