@@ -1,10 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, CSSProperties } from 'react';
 import { getSavedTracks, getPlaylistsWithTracks, getNotInPlaylistTracks } from '../utils/getFuncs';
 import { Track, Artist, PlaylistWithTracks } from '../../types/types';
 
 interface Props {
-    token: string;
+	token: string;
 }
+
+const bodyStyle: CSSProperties = {
+	width: '100%',
+	height: '100%',
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'center',
+	backgroundImage: "linear-gradient(163deg, #1DB954, #191414)",
+}
+
+const tracksStyle: CSSProperties = {
+  width: '200px',
+	margin: '10px',
+	padding: '10px',
+	border: '1px solid black',
+	borderRadius: '10px',
+	backgroundColor: 'white',
+};
 
 //MEMO: UX改善として、50ずつplaylistTracksに含まれているかどうかを判定する。
 //      savedTracksを50ずつ取得+全てをspotifyから取得していなければnext=trueにしておく。
@@ -56,23 +74,20 @@ export default function Tracks(props: Props) {
     }
 
     return (
-        <>
-        <h1>Tracks</h1>
-        <div>
-            <div>saved track count: {savedTracks.length}</div>
+			<>
+        <div style={bodyStyle}>
+					<h1>Tracks left behind in the playlist</h1>
+					<div>{notInPlaylistTracks.length} left / {savedTracks.length} saved</div>
+					<div style={{display: "flex", flexWrap: "wrap"  }}>
+							{notInPlaylistTracks.map((track: Track) => (
+									<div id={track.id}  style={tracksStyle}>
+											<div>track: {track.name}</div>
+											<div>artist: {track.artists.map((artist: Artist) => artist.name).join(', ')}</div>
+											<a href={track.uri}> link </a>
+									</div>
+							))}
+					</div>
         </div>
-        <div>
-            <div>not in playlist track count: {notInPlaylistTracks.length}</div>
-        </div>
-        <div>
-            {notInPlaylistTracks.map((track: Track) => (
-                <div id={track.id}  style={{margin: '10px', border: '1px solid black'}}>
-                    <div>track name: {track.name}</div>
-                    <div>artist name: {track.artists.map((artist: Artist) => artist.name).join(', ')}</div>
-                    <a href={track.uri}> link </a>
-                </div>
-            ))}
-        </div>
-        </>
+			</>
     );
 }
