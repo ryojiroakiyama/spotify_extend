@@ -69,7 +69,7 @@ export default function Tracks(props: Props) {
                 <div id={track.id}  style={{margin: '10px', border: '1px solid black'}}>
                     <div>track name: {track.name}</div>
                     <div>artist name: {track.artists.map((artist: Artist) => artist.name).join(', ')}</div>
-                    <div>link: {track.uri} </div>
+                    <a href={track.uri}> link </a>
                 </div>
             ))}
         </div>
