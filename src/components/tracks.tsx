@@ -24,11 +24,11 @@ const tracksStyle: CSSProperties = {
 	backgroundColor: 'white',
 };
 
-//MEMO: UX改善として、50ずつplaylistTracksに含まれているかどうかを判定する。
-//      savedTracksを50ずつ取得+全てをspotifyから取得していなければnext=trueにしておく。
-//      next50ボタンで次のsavedTracksを取得するようにする。
-
-//3. 属しているプレイリストを表示する、複数属す場合は色付け、どこにも属していない場合はハイライトする
+//MEMO: UX改善として、
+//      1. 50ずつplaylistTracksに含まれているかどうかを判定する。
+//         savedTracksを50ずつ取得+全てをspotifyから取得していなければnext=trueにしておく。
+//         next50ボタンで次のsavedTracksを取得するようにする。
+//      2. 属しているプレイリストを表示する、複数属す場合は色付け、どこにも属していない場合はハイライトする
 export default function Tracks(props: Props) {
     const { token } = props;
     const [savedTracks, setSavedTracks] = useState<Track[] | null>(null);
@@ -81,7 +81,7 @@ export default function Tracks(props: Props) {
 					<div style={{display: "flex", flexWrap: "wrap"  }}>
 							{notInPlaylistTracks.map((track: Track) => (
 									<div id={track.id}  style={tracksStyle}>
-											<div>track: {track.name}</div>
+											<div>{track.name}</div>
 											<div>artist: {track.artists.map((artist: Artist) => artist.name).join(', ')}</div>
 											<a href={track.uri}> link </a>
 									</div>
