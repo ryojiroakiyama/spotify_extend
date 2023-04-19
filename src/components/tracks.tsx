@@ -79,13 +79,13 @@ export default function Tracks(props: Props) {
 					<h1>Tracks left behind in the playlist</h1>
 					<div>{notInPlaylistTracks.length} left / {savedTracks.length} saved</div>
 					<div style={{display: "flex", flexWrap: "wrap"  }}>
-							{notInPlaylistTracks.map((track: Track) => (
-									<div id={track.id}  style={tracksStyle}>
-											<div>{track.name}</div>
-											<div>artist: {track.artists.map((artist: Artist) => artist.name).join(', ')}</div>
-											<a href={track.uri}> link </a>
-									</div>
-							))}
+						{notInPlaylistTracks.map((track: Track) => (
+							<div id={track.id}  style={tracksStyle}>
+							<div>{track.name}</div>
+							<div>artist: {track.artists.map((artist: Artist) => artist.name).join(', ')}</div>
+								<a href={track.uri}> link </a>
+							</div>
+						))}
 					</div>
         </div>
 			</>
