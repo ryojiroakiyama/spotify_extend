@@ -22,11 +22,11 @@ function spotifyUrl(endpoint: string) {
 }
 
 export async function fetchAllItems(endpoint: string, token: string) {
-  let endpointWithQuery: string | null = endpoint + "?offset=0&limit=50";
+  let url: string | null = spotifyUrl(endpoint) + "?offset=0&limit=50";
   let items: any[] = [];
 
-  while (endpointWithQuery !== null) {
-      const response: any = await fetchWebApiEndpoint(endpointWithQuery, token);
+  while (url !== null) {
+      const response: any = await fetchWebApi(url, token);
       if (response.error && response.error.status === 429) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
@@ -34,7 +34,7 @@ export async function fetchAllItems(endpoint: string, token: string) {
         throw new Error(response.error.message);
       }
       items = items.concat(response.items);
-      endpointWithQuery = response.next;
+      url = response.next;
   }
 
   return items;
