@@ -1,7 +1,7 @@
 import './App.css';
 import { useEffect, useState } from 'react';
 import { redirectToAuthCodeFlow, getAccessToken } from './utils/auth';
-import Home from './components/home';
+import Home from './containers/home';
 
 const clientId = "fe1e589d3d40496ba962cfb76cbe6ca0"; // Replace with your client id
 
@@ -34,12 +34,14 @@ function App() {
     }
   }
 
-  if (token === null) {
-    return <div>Loading token ...</div>;
-  }
-
   return (
-    <Home token={token} />
+    <>
+      {token === null ? 
+        <div>Loading ...</div>
+        :
+        <Home token={token} />
+      }
+    </>
   );
 }
 

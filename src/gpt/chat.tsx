@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Generate from "../utils/generate";
+import Generate from "./generate";
 
 export default function Chat() {
   const [animalInput, setAnimalInput] = useState("");

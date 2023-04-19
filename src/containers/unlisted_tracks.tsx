@@ -1,6 +1,8 @@
 import { useEffect, useState, CSSProperties } from 'react';
 import { getSavedTracks, getPlaylistsWithTracks, getNotInPlaylistTracks } from '../utils/getFuncs';
-import { Track, Artist, PlaylistWithTracks, Playlist, UserProfile } from '../../types/types';
+import { Track, PlaylistWithTracks, Playlist, UserProfile } from '../../types/types';
+
+import Tracks from '../components/tracks';
 
 interface Props {
 	token: string;
@@ -16,15 +18,6 @@ const bodyStyle: CSSProperties = {
 	alignItems: 'center',
 	backgroundImage: "linear-gradient(163deg, #1DB954, #191414)",
 }
-
-const tracksStyle: CSSProperties = {
-  width: '200px',
-	margin: '10px',
-	padding: '10px',
-	border: '1px solid black',
-	borderRadius: '10px',
-	backgroundColor: 'white',
-};
 
 //MEMO: UX改善として、
 //      1. 50ずつplaylistTracksに含まれているかどうかを判定する。
@@ -87,21 +80,10 @@ export default function UnlistedTracks(props: Props) {
     }
 
     return (
-			<>
-        <div style={bodyStyle}>
-					<h1>Tracks left behind in the playlist</h1>
-					<div>{notInPlaylistTracks.length} left / {savedTracks.length} saved</div>
-
-					<div style={{display: "flex", flexWrap: "wrap"  }}>
-						{notInPlaylistTracks.map((track: Track) => (
-							<div id={track.id}  style={tracksStyle}>
-							<div>{track.name}</div>
-							<div>artist: {track.artists.map((artist: Artist) => artist.name).join(', ')}</div>
-								<a href={track.uri}> link </a>
-							</div>
-						))}
-					</div>
+        <div style={bodyStyle}>        
+                <h1>Tracks left behind in the playlist</h1>
+                <div>{notInPlaylistTracks.length} left / {savedTracks.length} saved</div>
+                <Tracks tracks={notInPlaylistTracks} />
         </div>
-			</>
     );
 }

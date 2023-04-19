@@ -5,8 +5,8 @@ import { fetchWebApiEndpoint } from '../utils/api';
 import { getMyPlaylists } from '../utils/getFuncs';
 
 import Profile from '../components/profile';
-import Menu from '../components/menu';
-import Chat from '../components/chat';
+import Menu from './menu';
+import Chat from '../gpt/chat';
 
 type Pops = {
     token: string;
