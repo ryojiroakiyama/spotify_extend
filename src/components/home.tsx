@@ -1,5 +1,9 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+import { UserProfile } from '../../types/types';
+import { fetchWebApi, spotifyUrl } from '../utils/api';
+
 import Profile from '../components/profile';
 import Tracks from '../components/tracks';
 import Chat from '../components/chat';
@@ -13,23 +17,38 @@ const menu = {
   tracks: "Tracks",
 }
 
+//TODO: ここでprofile以外にもプレイリストなど取得するようにする
 function Home(props: Pops) {
 	const { token } = props;
+	const [profile, setProfile] = useState<UserProfile | null>(null);
   const [select, setSelect] = useState<string | null>(null);
+
+	useEffect(() => {
+		async function fetchData() {
+				const profile = await fetchWebApi(spotifyUrl("v1/me"), token);
+				setProfile(profile);
+		}
+
+		fetchData();
+}, [token]);
+
+	if (profile === null) {
+		return <div>Loading profile ...</div>;
+	}
 
   if (select === null) {
     return (
-      <div>
+      <>
+				<Profile profile={profile} />
         <button onClick={() => setSelect(menu.profile)}>Profile</button>
         <button onClick={() => setSelect(menu.tracks)}>Tracks</button>
         <Chat />
-      </div>
+      </>
     )
   }
 
   return (
     <>
-      {select === menu.profile && <Profile token={token} />}
       {select === menu.tracks && <Tracks token={token} />}
     </>
   );

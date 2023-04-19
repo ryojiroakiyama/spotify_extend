@@ -1,27 +1,11 @@
 import { UserProfile } from '../../types/types';
-import { useEffect, useState } from 'react';
-import { fetchWebApi, spotifyUrl } from '../utils/api';
 
 interface Props {
-    token: string;
+    profile: UserProfile;
 }
 
 export default function Profile(props: Props) {
-    const { token } = props;
-    const [profile, setProfile] = useState<UserProfile | null>(null);
-
-    useEffect(() => {
-        async function fetchData() {
-            const profile = await fetchWebApi(spotifyUrl("v1/me"), token);
-            setProfile(profile);
-        }
-
-        fetchData();
-    }, [token]);
-
-    if (profile === null) {
-        return <div>Loading profile ...</div>;
-    }
+    const { profile } = props;
 
     return (
         <>
