@@ -1,9 +1,11 @@
 import { useEffect, useState, CSSProperties } from 'react';
 import { getSavedTracks, getPlaylistsWithTracks, getNotInPlaylistTracks } from '../utils/getFuncs';
-import { Track, Artist, PlaylistWithTracks } from '../../types/types';
+import { Track, Artist, PlaylistWithTracks, Playlist, UserProfile } from '../../types/types';
 
 interface Props {
 	token: string;
+	playlists: Playlist[];
+	profile: UserProfile;
 }
 
 const bodyStyle: CSSProperties = {
@@ -29,8 +31,8 @@ const tracksStyle: CSSProperties = {
 //         savedTracksを50ずつ取得+全てをspotifyから取得していなければnext=trueにしておく。
 //         next50ボタンで次のsavedTracksを取得するようにする。
 //      2. 属しているプレイリストを表示する、複数属す場合は色付け、どこにも属していない場合はハイライトする
-export default function Tracks(props: Props) {
-    const { token } = props;
+export default function UnlistedTracks(props: Props) {
+    const { token, playlists, profile } = props;
     const [savedTracks, setSavedTracks] = useState<Track[] | null>(null);
     const [playlistsWithTracks, setPlaylistsWithTracks] = useState<PlaylistWithTracks[] | null>(null);
     const [notInPlaylistTracks, setNotInPlaylistTracks] = useState<Track[] | null>(null);
@@ -40,13 +42,13 @@ export default function Tracks(props: Props) {
             getSavedTracks(token).then((tracks) => {
                 setSavedTracks(tracks);
             });
-            getPlaylistsWithTracks(token).then((tracks) => {
+            getPlaylistsWithTracks(token, playlists).then((tracks) => {
                 setPlaylistsWithTracks(tracks);
             });
         }
 
         fetchData();
-    }, [token]);
+    }, [token, playlists]);
 
     useEffect(() => {
         async function fetchData() {
@@ -78,6 +80,7 @@ export default function Tracks(props: Props) {
         <div style={bodyStyle}>
 					<h1>Tracks left behind in the playlist</h1>
 					<div>{notInPlaylistTracks.length} left / {savedTracks.length} saved</div>
+
 					<div style={{display: "flex", flexWrap: "wrap"  }}>
 						{notInPlaylistTracks.map((track: Track) => (
 							<div id={track.id}  style={tracksStyle}>

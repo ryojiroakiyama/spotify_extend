@@ -16,8 +16,8 @@ export default function Profile(props: Props) {
             <ul>
             <li>User ID: <span>{profile.id}</span></li>
             <li>Email: <span>{profile.email}</span></li>
-            <li>Spotify URI: <a href='#'>{profile.uri}</a></li>
-            <li>Link: <a href='#'>{profile.href}</a></li>
+            <li>Spotify URI: <a href={profile.uri}>{profile.uri}</a></li>
+            <li>Link: <a href={profile.href}>{profile.href}</a></li>
             </ul>
         </section>
         </>

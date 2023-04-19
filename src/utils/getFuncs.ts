@@ -1,5 +1,5 @@
 import { fetchAllItems } from "./api";
-import { Track, PlaylistWithTracks } from '../../types/types';
+import { Track, PlaylistWithTracks, Playlist } from '../../types/types';
 
 export async function getNotInPlaylistTracks(savedTracks: Track[], playlistsWithTracks: PlaylistWithTracks[]) {
     let tracks: Track[] = [];
@@ -25,28 +25,29 @@ export async function getSavedTracks(token: string) {
     return tracks;
 }
 
-export async function getPlaylistsWithTracks(token: string) {
-    let playlistsWithTracks = await getMyPlaylists(token);
+export async function getPlaylistsWithTracks(token: string, playlists: Playlist[]) {
+    let playlistsWithTracks: PlaylistWithTracks[] = [];
 
-    for (let i = 0; i < playlistsWithTracks.length; i++) {
-        const tracksFromPlaylist = await getTracksFromPlaylist(playlistsWithTracks[i].id, token);
-        playlistsWithTracks[i].tracks = tracksFromPlaylist;
+    for (let i = 0; i < playlists.length; i++) {
+        console.log("getTracksFromPlaylist: " + playlists[i].id);
+        const tracksFromPlaylist = await getTracksFromPlaylist(playlists[i].id, token);
+        playlistsWithTracks.push({
+            ...playlists[i],
+            tracks: tracksFromPlaylist
+        })
     }
 
     return playlistsWithTracks;
 }
 
-async function getMyPlaylists(token: string) {
-    let playlists: PlaylistWithTracks[] = [];
-
-    //TODO: profile情報から自分のIDを取得する
-    const myId = "i2ygbw453jwitgc7s84ly0nf3";
+export async function getMyPlaylists(token: string, myId: string) {
+    let playlists: Playlist[] = [];
 
     const playlistsItems = await fetchAllItems("v1/me/playlists", token);
     playlists = playlists.concat(playlistsItems);
 
     // 自分のプレイリスト以外を除外
-    playlists = playlists.filter((playlist: PlaylistWithTracks) => playlist.owner.id === myId);
+    playlists = playlists.filter((playlist: Playlist) => playlist.owner.id === myId);
 
     return playlists;
 }

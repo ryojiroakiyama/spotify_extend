@@ -41,6 +41,14 @@ export interface Artist {
     name: string;
 }
 
+export interface Playlist {
+    id: string;
+    name: string;
+    owner: {
+        id: string;
+    }
+}
+
 export interface PlaylistWithTracks {
     id: string;
     name: string;
