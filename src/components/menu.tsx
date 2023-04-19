@@ -31,11 +31,6 @@ function Menu(props: Props) {
 
   return (
     <>
-			{playlists.map((playlist) => (
-				<div key={playlist.id}>
-					{playlist.name}
-				</div>
-			))}
 			{select === menu.sortBpm && <SortBpm token={token} playlists={playlists} profile={profile} />}
       {select === menu.unlistedTracks && <UnlistedTracks token={token} playlists={playlists} profile={profile} />}
     </>

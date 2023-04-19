@@ -29,7 +29,6 @@ export async function getPlaylistsWithTracks(token: string, playlists: Playlist[
     let playlistsWithTracks: PlaylistWithTracks[] = [];
 
     for (let i = 0; i < playlists.length; i++) {
-        console.log("getTracksFromPlaylist: " + playlists[i].id);
         const tracksFromPlaylist = await getTracksFromPlaylist(playlists[i].id, token);
         playlistsWithTracks.push({
             ...playlists[i],

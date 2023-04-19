@@ -39,9 +39,6 @@ export default function UnlistedTracks(props: Props) {
 
     useEffect(() => {
         async function fetchData() {
-            getSavedTracks(token).then((tracks) => {
-                setSavedTracks(tracks);
-            });
             getPlaylistsWithTracks(token, playlists).then((tracks) => {
                 setPlaylistsWithTracks(tracks);
             });
@@ -49,6 +46,20 @@ export default function UnlistedTracks(props: Props) {
 
         fetchData();
     }, [token, playlists]);
+
+    useEffect(() => {
+        if (playlistsWithTracks === null) {
+            return;
+        }
+
+        async function fetchData() {
+            getSavedTracks(token).then((tracks) => {
+                setSavedTracks(tracks);
+            });
+        }
+
+        fetchData();
+    }, [token, playlists, playlistsWithTracks]);    
 
     useEffect(() => {
         async function fetchData() {
