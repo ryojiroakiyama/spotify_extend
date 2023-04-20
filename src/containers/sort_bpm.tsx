@@ -1,13 +1,14 @@
-import { Playlist, UserProfile } from '../../types/types';
+import { PlaylistWithTracks, UserProfile } from '../../types/types';
 
 interface Props {
 	token: string;
-	playlists: Playlist[];
-	profile: UserProfile;
+	myProfile: UserProfile;
+	myPlaylists: PlaylistWithTracks[];
+	setMyPlaylists: React.Dispatch<React.SetStateAction<PlaylistWithTracks[] | null>>;
 }
 
 export default function SortBpm(props: Props) {
-    const { token, playlists, profile } = props;
+    const { token, myPlaylists, myProfile } = props;
 	
     return (
 			<>

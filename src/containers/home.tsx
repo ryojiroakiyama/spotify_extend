@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
 
-import { UserProfile, Playlist } from '../../types/types';
+import { UserProfile, PlaylistWithTracks, Track } from '../../types/types';
 import { fetchWebApiEndpoint } from '../utils/api';
 import { getMyPlaylists } from '../utils/getFuncs';
 
 import Profile from '../components/profile';
-import Menu from './menu';
-import Chat from '../gpt/chat';
+import SortBpm from './sort_bpm';
+import UnlistedTracks from './unlisted_tracks';
+
+const menu = {
+  sortBpm: "SortBpm",
+  unlistedTracks: "UnlistedTracks",
+}
 
 type Pops = {
     token: string;
@@ -14,30 +19,40 @@ type Pops = {
 
 function Home(props: Pops) {
 	const { token } = props;
-	const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [playlists, setPlaylists] = useState<Playlist[] | null>(null);
+	const [myProfile, setMyProfile] = useState<UserProfile | null>(null);
+  const [myPlaylists, setMyPlaylists] = useState<PlaylistWithTracks[] | null>(null);
+  const [select, setSelect] = useState<string | null>(null);
 
 	useEffect(() => {
 		async function fetchData() {
 				const profile = await fetchWebApiEndpoint("v1/me", token);
-				setProfile(profile);
+				setMyProfile(profile);
 
         const playlists = await getMyPlaylists(token, profile.id);
-        setPlaylists(playlists);
+        setMyPlaylists((playlists.map((playlist) => ({
+          ...playlist,
+          tracks: [] as Track[]
+        }))))
 		}
 
 		fetchData();
 }, [token]);
 
-	if (profile === null || playlists === null) {
+	if (myProfile === null || myPlaylists === null) {
 		return <div>Loading ...</div>;
 	}
 
   return (
     <>
-      <Profile profile={profile} />
-      <Chat />
-      <Menu token={token} profile={profile} playlists={playlists} />
+      <Profile profile={myProfile} />
+      {select === null &&
+        <>
+          <button onClick={() => setSelect(menu.sortBpm)}>Sort by bpm</button>
+          <button onClick={() => setSelect(menu.unlistedTracks)}>Unlisted tracks</button>
+        </>
+      }
+      {select === menu.sortBpm && <SortBpm token={token} myPlaylists={myPlaylists} myProfile={myProfile} setMyPlaylists={setMyPlaylists}/>}
+      {select === menu.unlistedTracks && <UnlistedTracks token={token} myPlaylists={myPlaylists} myProfile={myProfile} setMyPlaylists={setMyPlaylists} />}
     </>
   )
 }

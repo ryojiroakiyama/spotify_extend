@@ -1,42 +1,18 @@
-import { fetchAllItems } from "./api";
-import { Track, PlaylistWithTracks, Playlist } from '../../types/types';
+import { fetchAllItems, fetchWebApiEndpoint } from "./api";
+import { Track, Playlist, PlaylistWithTracks } from '../../types/types';
 
-export async function getNotInPlaylistTracks(savedTracks: Track[], playlistsWithTracks: PlaylistWithTracks[]) {
-    let tracks: Track[] = [];
+export async function getSavedTracks(offset: number, token: string) {
+    const endpoint = `v1/me/tracks?offset=${offset}&limit=50`;
 
-    savedTracks.forEach((savedTrack: Track) => {
-        const isNotInPlaylist = playlistsWithTracks.every((playlist: PlaylistWithTracks) => {
-            return playlist.tracks.every((playlistTrack: Track) => playlistTrack.id !== savedTrack.id);
-        });
-        if (isNotInPlaylist) {
-            tracks.push(savedTrack);
-        }
-    });
-
-    return tracks;
-}
-
-export async function getSavedTracks(token: string) {
-    let tracks: Track[] = [];
-
-    const tracksItems = await fetchAllItems("v1/me/tracks", token);
-    tracks = tracks.concat(tracksItems.map((item: any) => item.track));
-
-    return tracks;
-}
-
-export async function getPlaylistsWithTracks(token: string, playlists: Playlist[]) {
-    let playlistsWithTracks: PlaylistWithTracks[] = [];
-
-    for (let i = 0; i < playlists.length; i++) {
-        const tracksFromPlaylist = await getTracksFromPlaylist(playlists[i].id, token);
-        playlistsWithTracks.push({
-            ...playlists[i],
-            tracks: tracksFromPlaylist
-        })
+    const response = await fetchWebApiEndpoint(endpoint, token);
+    if (response.error) {
+        throw new Error(response.error.message);
     }
 
-    return playlistsWithTracks;
+    let tracks = response.items.map((item: any) => item.track);
+    let hasNext = response.next !== null;
+
+    return [tracks, hasNext];
 }
 
 export async function getMyPlaylists(token: string, myId: string) {
@@ -51,11 +27,20 @@ export async function getMyPlaylists(token: string, myId: string) {
     return playlists;
 }
 
-async function getTracksFromPlaylist(playlistId: string, token: string) {
+export async function getTracksFromPlaylist(playlistId: string, token: string) {
     let tracks: Track[] = [];
 
     const tracksItems = await fetchAllItems(`v1/playlists/${playlistId}/tracks`, token);
     tracks = tracks.concat(tracksItems.map((item: any) => item.track));
 
     return tracks;
+}
+
+export const isTrackBelongToPlaylist = (track: Track, playlist: PlaylistWithTracks): boolean => {
+    for (let i = 0; i < playlist.tracks.length; i++) {
+        if (playlist.tracks[i].id === track.id) {
+            return true;
+        }
+    }
+    return false;
 }

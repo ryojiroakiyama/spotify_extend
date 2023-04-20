@@ -27,6 +27,18 @@ export interface Track {
     name: string;
     uri: string;
     artists: Artist[];
+}
+
+export interface Artist {
+    id: string;
+    name: string;
+}
+
+export interface TrackWithAnalysis {
+    id: string;
+    name: string;
+    uri: string;
+    artists: Artist[];
     analysis: Analysis;
 }
 
@@ -34,11 +46,6 @@ export interface Analysis {
     track: {
         tempo: number;
     }
-}
-
-export interface Artist {
-    id: string;
-    name: string;
 }
 
 export interface Playlist {

@@ -1,8 +1,10 @@
 import { CSSProperties } from 'react';
-import { Track, Artist } from '../../types/types';
+import { Track, Artist, PlaylistWithTracks } from '../../types/types';
 
 interface Props {
     tracks: Track[];
+	playlists: PlaylistWithTracks[];
+	mapTrackToPlaylists: Map<string, string[]>
 }
 
 const tracksStyle: CSSProperties = {
@@ -14,8 +16,8 @@ const tracksStyle: CSSProperties = {
 	backgroundColor: 'white',
 };
 
-export default function Tracks(props: Props) {
-    const { tracks } = props;
+export default function TracksWithPlaylists(props: Props) {
+    const { tracks, playlists, mapTrackToPlaylists } = props;
 
     return (
 			<>
