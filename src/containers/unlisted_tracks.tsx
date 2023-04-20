@@ -105,7 +105,7 @@ export default function UnlistedTracks(props: Props) {
 
     return (
         <div style={bodyStyle}>
-            {currentPage > 2 &&
+            {currentPage > 1 &&
                 <button onClick={() => setCurrentPage(currentPage - 1)}>Prev</button>}
             {(!isAllSavedTracksLoaded || savedTracks.length > (currentPage * 50)) &&
                 <button onClick={() => setCurrentPage(currentPage + 1)}>Next</button>}
