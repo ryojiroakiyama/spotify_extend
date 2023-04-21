@@ -2,7 +2,7 @@ import { CSSProperties } from 'react';
 import { Track, Artist, PlaylistWithTracks } from '../../types/types';
 
 interface Props {
-    tracks: Track[];
+    track: Track;
 	playlists: PlaylistWithTracks[];
 	mapTrackToPlaylists: Map<string, string[]>
 }
@@ -17,36 +17,47 @@ const tracksStyle: CSSProperties = {
 };
 
 export default function TracksWithPlaylists(props: Props) {
-    const { tracks, playlists, mapTrackToPlaylists } = props;
+    const { track, playlists, mapTrackToPlaylists } = props;
 
-	const playlistList = (trackId: string) => {
-		const playlistsIds = mapTrackToPlaylists.get(trackId);
+	const playlistNameList = (() => {
+		const playlistsIds = mapTrackToPlaylists.get(track.id);
 		if (!playlistsIds || playlistsIds.length === 0) {
-			return <div>no playlist</div>;
+			return [];
 		}
-		return playlistsIds.map((playlistId) => {
+		const list = playlistsIds.map((playlistId) => {
 			const playlist = playlists.find((playlist) => playlist.id === playlistId);
 			if (!playlist) {
-				return <div>no playlist</div>;
+				return '';
 			}
-			return <div>{playlist.name}</div>;
+			return playlist.name;
 		});
-	};
+		return list;
+	})();
+
+	const playlistList = (playlistNameList: string[]) => {
+		return  <div style={{border: "solid 1px", marginTop: "15px"}}>
+					{playlistNameList.map((playlistName) => {
+						return <div>{playlistName}</div>;
+					})}
+				</div>
+	}
+
+    const getBorderColor = () => {
+        if (playlistNameList.length === 0) {
+            return "orange";
+        } else if (playlistNameList.length >= 2) {
+            return "green";
+        } else {
+            return "black";
+        }
+    };
 
     return (
-			<>
-				<div style={{display: "flex", flexWrap: "wrap"  }}>
-					{tracks.map((track: Track) => (
-						<div id={track.id}  style={tracksStyle}>
-							<div>{track.name}</div>
-							<div>artist: {track.artists.map((artist: Artist) => artist.name).join(', ')}</div>
-							<a href={track.uri}> link </a>
-							<div style={{border: "solid 1px", marginTop: "15px"}}>
-								{playlistList(track.id)}
-							</div>
-						</div>
-					))}
-				</div>
-			</>
+		<div id={track.id}  style={{...tracksStyle, border: `solid ${getBorderColor()}`}}>
+			<div>{track.name}</div>
+			<div>artist: {track.artists.map((artist: Artist) => artist.name).join(', ')}</div>
+			<a href={track.uri}> link </a>
+			{playlistList(playlistNameList)}
+		</div>
     );
 }

@@ -97,11 +97,14 @@ export default function ListTracks(props: Props) {
                 <button onClick={() => setCurrentPage(currentPage - 1)}>Prev</button>}
             {(!isAllSavedTracksLoaded || savedTracks.length > (currentPage * 50)) &&
                 <button onClick={() => setCurrentPage(currentPage + 1)}>Next</button>}
-            <TracksWithPlaylists 
-                tracks={getTracksFromCurrentPage(savedTracks, currentPage)}
-                playlists={playlists}
-                mapTrackToPlaylists={mapTrackToPlaylists}
-            />
+            <div style={{display: "flex", flexWrap: "wrap"  }}>
+                {getTracksFromCurrentPage(savedTracks, currentPage).map((track: Track) => {
+                    return <TracksWithPlaylists
+                    track={track}
+                    playlists={playlists}
+                    mapTrackToPlaylists={mapTrackToPlaylists} />
+                })}
+            </div>
         </div>
     );
 }
