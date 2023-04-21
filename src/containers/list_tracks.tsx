@@ -6,9 +6,11 @@ import TracksWithPlaylists from '../components/tracks';
 
 interface Props {
 	token: string;
-	myProfile: UserProfile;
-	myPlaylists: PlaylistWithTracks[];
-    setMyPlaylists: React.Dispatch<React.SetStateAction<PlaylistWithTracks[] | null>>;
+	profile: UserProfile;
+	playlists: PlaylistWithTracks[];
+    setPlaylists: React.Dispatch<React.SetStateAction<PlaylistWithTracks[] | null>>;
+    savedTracks: Track[];
+    setSavedTracks: React.Dispatch<React.SetStateAction<Track[]>>;
 }
 
 const bodyStyle: CSSProperties = {
@@ -20,71 +22,57 @@ const bodyStyle: CSSProperties = {
 	backgroundImage: "linear-gradient(163deg, #1DB954, #191414)",
 }
 
-//MEMO: UX改善として、
-//      1. 50ずつplaylistTracksに含まれているかどうかを判定する。
-//         savedTracksを50ずつ取得+全てをspotifyから取得していなければnext=trueにしておく。
-//         next50ボタンで次のsavedTracksを取得するようにする。
-//      2. 属しているプレイリストを表示する、複数属す場合は色付け、どこにも属していない場合はハイライトする
-export default function UnlistedTracks(props: Props) {
-    const { token, myPlaylists, setMyPlaylists } = props;
-    const [isPlaylistTracksLoaded, setIsPlaylistTracksLoaded] = useState<boolean>(false);
+export default function ListTracks(props: Props) {
+    const { token, playlists, setPlaylists, savedTracks, setSavedTracks } = props;
     const [isAllSavedTracksLoaded, setIsAllSavedTracksLoaded] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1); // 1 page = 50 tracks
-    const [savedTracks, setSavedTracks] = useState<Track[]>([]);
     // どの曲がどのプレイリストに属しているかを保存する
     const [mapTrackToPlaylists, setMapTrackToPlaylists] = useState<Map<string, string[]>>(new Map());
 
-    useEffect(() => {
-        async function fetchData() {
-            let newPlaylist = myPlaylists;
-            for (let i = 0; i < newPlaylist.length; i++) {
-                if (newPlaylist[i].tracks.length > 0) {
-                    continue;
-                }
-                newPlaylist[i].tracks = await getTracksFromPlaylist(newPlaylist[i].id, token);
+    const fetchTracksToPlaylists = useCallback(async (playlists: PlaylistWithTracks[]) => {
+        for (let i = 0; i < playlists.length; i++) {
+            if (playlists[i].tracks.length > 0) {
+                continue;
             }
-            setMyPlaylists(newPlaylist);
-            setIsPlaylistTracksLoaded(true);
+            playlists[i].tracks = await getTracksFromPlaylist(playlists[i].id, token);
         }
-
-        fetchData();
-    }, [token, myPlaylists, setMyPlaylists]);
+        return playlists;
+    }, [token]);
 
     const getPlaylistsIdsTrackBelongTo = useCallback((track: Track, playlists: PlaylistWithTracks[]) => {
         const playlistsTrackBelongTo = playlists.filter((playlist) => isTrackBelongToPlaylist(track, playlist));
         return playlistsTrackBelongTo.map((playlist) => playlist.id);
     }, []);
 
-    useEffect(() => {
-        if (!isPlaylistTracksLoaded) {
-            return;
-        }
+    const getTracksRequired = useCallback(async (currentTracks: Track[], numTracksRequired: number, token: string) => {
         if (isAllSavedTracksLoaded) {
-            return;
+            return currentTracks;
         }
-
-        async function fetchData() {
-            const numTracksRequired = currentPage * 50;
-            let tracksToFetch = savedTracks;
-            
-            while (tracksToFetch.length < numTracksRequired) {
-              const [tracks, hasNext] = await getSavedTracks(tracksToFetch.length, token);
-              tracksToFetch = [...tracksToFetch, ...tracks];
-              tracks.forEach((track: Track) => {
-                const playlistsIds = getPlaylistsIdsTrackBelongTo(track, myPlaylists);
-                setMapTrackToPlaylists(prev => new Map([...prev, [track.id, playlistsIds]]));
-              });
-              if (!hasNext) {
-                setIsAllSavedTracksLoaded(true);
-                break;
-              }
+        while (currentTracks.length < numTracksRequired) {
+            const [tracks, hasNext] = await getSavedTracks(currentTracks.length, token);
+            currentTracks = [...currentTracks, ...tracks];
+            tracks.forEach((track: Track) => {
+              const playlistsIds = getPlaylistsIdsTrackBelongTo(track, playlists);
+              setMapTrackToPlaylists(prev => new Map([...prev, [track.id, playlistsIds]]));
+            });
+            if (!hasNext) {
+              setIsAllSavedTracksLoaded(true);
+              break;
             }
-            
-            setSavedTracks(tracksToFetch);
-          }
+        }
+        return currentTracks;
+    }, [isAllSavedTracksLoaded, getPlaylistsIdsTrackBelongTo, playlists]);
+
+    useEffect(() => {
+        async function fetchData() {
+            const playlistWithTracks = await fetchTracksToPlaylists(playlists);
+            setPlaylists(playlistWithTracks);
+            const tracks = await getTracksRequired(savedTracks, currentPage * 50, token);
+            setSavedTracks(tracks);
+        }
 
         fetchData();
-    }, [token, myPlaylists, savedTracks, isPlaylistTracksLoaded, isAllSavedTracksLoaded, getPlaylistsIdsTrackBelongTo, currentPage]);
+    }, [token, playlists, setPlaylists, fetchTracksToPlaylists, getTracksRequired, savedTracks, currentPage, setSavedTracks]);
 
     function sliceSavedTracks(tracks: Track[], startIndex: number, endIndex: number): Track[] {
         const end = Math.min(endIndex, tracks.length - 1); // 範囲の終点が配列の範囲外の場合は最後の要素まで取得する
@@ -99,7 +87,7 @@ export default function UnlistedTracks(props: Props) {
         return sliceSavedTracks(tracks, startIndex, end);
     }
 
-    if (!isPlaylistTracksLoaded || savedTracks === null) {
+    if (savedTracks.length === 0) {
         return <div>Loading ...</div>;
     }
 
@@ -111,7 +99,7 @@ export default function UnlistedTracks(props: Props) {
                 <button onClick={() => setCurrentPage(currentPage + 1)}>Next</button>}
             <TracksWithPlaylists 
                 tracks={getTracksFromCurrentPage(savedTracks, currentPage)}
-                playlists={myPlaylists}
+                playlists={playlists}
                 mapTrackToPlaylists={mapTrackToPlaylists}
             />
         </div>
