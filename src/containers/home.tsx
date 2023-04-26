@@ -6,6 +6,7 @@ import { getMyPlaylists } from '../utils/getFuncs';
 
 import Profile from '../components/profile';
 import ListTracks from './list_tracks';
+import Chat from '../gpt/chat';
 
 const menu = {
   listTracks: "List Tracks",
@@ -50,7 +51,16 @@ function Home(props: Pops) {
 
   return (
     <>
-      <Profile profile={profile} />
+      <div style={{display: 'flex', margin: '15px'}}>
+        <div>
+          <Profile profile={profile} />
+        </div>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginLeft: '100px'}}>
+          <div>
+            <Chat />
+          </div>
+        </div>
+      </div>
       {select === null &&
         <button onClick={() => setSelect(menu.listTracks)}>{menu.listTracks}</button>
       }

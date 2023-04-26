@@ -1,9 +1,6 @@
 import { useState } from "react";
 import Generate from "./generate";
 
-//MEMO: chatの組み込む手順
-//      1. 新たにそれ用のコンポーネントを作成する
-//      2. コンポーネント内では、chatの入力フォーム, chatの返り値をパースする処理, パース結果から特定の処理を行う処理を記述する
 export default function Chat() {
   const [animalInput, setAnimalInput] = useState("");
   const [result, setResult] = useState("");
@@ -28,6 +25,12 @@ export default function Chat() {
     }
   }
 
+
+//TODO: 手順
+//1. 見た目を整形
+//2. プロンプトを追加して、その返り値をそのまま表示して、プロンプトをテストする
+//   プロンプト内容: trackを参照するか、さらにモードを変更するか、その他
+//3. アクションを入れる
   return (
     <>
         <h3>Name my pet</h3>
