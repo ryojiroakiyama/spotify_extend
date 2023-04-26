@@ -1,10 +1,12 @@
 import { CSSProperties } from 'react';
 import { Track, Artist, PlaylistWithTracks } from '../../types/types';
+import { TrackViewMode } from '../containers/home';
 
 interface Props {
     track: Track;
 	playlists: PlaylistWithTracks[];
 	mapTrackToPlaylists: Map<string, string[]>
+	mode: TrackViewMode;
 }
 
 const tracksStyle: CSSProperties = {
@@ -17,7 +19,7 @@ const tracksStyle: CSSProperties = {
 };
 
 export default function TracksWithPlaylists(props: Props) {
-    const { track, playlists, mapTrackToPlaylists } = props;
+    const { track, playlists, mapTrackToPlaylists, mode } = props;
 
 	const playlistNameList = (() => {
 		const playlistsIds = mapTrackToPlaylists.get(track.id);
@@ -43,22 +45,35 @@ export default function TracksWithPlaylists(props: Props) {
 				</div>
 	}
 
-    const getBorderColor = () => {
-        if (playlistNameList.length === 0) {
-            return "orange";
-        } else if (playlistNameList.length >= 2) {
-            return "green";
-        } else {
-            return "black";
-        }
-    };
+	const isNotInPlaylist = () => {
+		return playlistNameList.length === 0;
+	}
 
-    return (
-		<div id={track.id}  style={{...tracksStyle, border: `solid ${getBorderColor()}`}}>
+	const info = (borderStyle: object) => (
+		<div id={track.id}  style={{...tracksStyle, ...borderStyle}}>
 			<div>{track.name}</div>
 			<div>artist: {track.artists.map((artist: Artist) => artist.name).join(', ')}</div>
 			<a href={track.uri}> link </a>
 			{playlistList(playlistNameList)}
 		</div>
-    );
+	)
+
+    const getHighlightBorderStyle = () => {
+        if (isNotInPlaylist()) {
+            return "5px orange";
+        } else if (playlistNameList.length >= 2) {
+            return "3px green";
+        } else {
+            return "black";
+        }
+    };
+
+	switch (mode) {
+		case TrackViewMode.DEFAULT:
+			return info({ border: `solid`});
+		case TrackViewMode.HIGHLIGHT_NOT_IN_PLAYLIST:
+			return info({ border: `solid ${getHighlightBorderStyle()}`});
+		case TrackViewMode.ONLY_NOT_IN_PLAYLIST:
+			return isNotInPlaylist() ? info({ border: `solid`}) : <></>;
+	}
 }

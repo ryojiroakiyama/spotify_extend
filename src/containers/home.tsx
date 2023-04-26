@@ -15,12 +15,19 @@ type Pops = {
     token: string;
 }
 
+export enum TrackViewMode {
+  DEFAULT = "Default",
+  HIGHLIGHT_NOT_IN_PLAYLIST = "Highlight Not In Playlist",
+  ONLY_NOT_IN_PLAYLIST = "Only Not In Playlist",
+}
+
 function Home(props: Pops) {
 	const { token } = props;
 	const [profile, setProfile] = useState<UserProfile | null>(null);
   const [playlists, setPlaylists] = useState<PlaylistWithTracks[] | null>(null);
   const [savedTracks, setSavedTracks] = useState<Track[]>([]);
   const [select, setSelect] = useState<string | null>(null);
+  const [mode, setMode] = useState(TrackViewMode.DEFAULT);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -55,6 +62,8 @@ function Home(props: Pops) {
           setPlaylists={setPlaylists}
           savedTracks={savedTracks}
           setSavedTracks={setSavedTracks}
+          mode={mode}
+          setMode={setMode}
         />}
     </>
   )

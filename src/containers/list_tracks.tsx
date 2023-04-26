@@ -1,6 +1,7 @@
 import { useEffect, useState, CSSProperties, useCallback } from 'react';
 import { getSavedTracks, getTracksFromPlaylist, isTrackBelongToPlaylist } from '../utils/getFuncs';
 import { Track, PlaylistWithTracks, UserProfile } from '../../types/types';
+import { TrackViewMode } from './home';
 
 import TracksWithPlaylists from '../components/tracks';
 
@@ -11,6 +12,8 @@ interface Props {
     setPlaylists: React.Dispatch<React.SetStateAction<PlaylistWithTracks[] | null>>;
     savedTracks: Track[];
     setSavedTracks: React.Dispatch<React.SetStateAction<Track[]>>;
+    mode: TrackViewMode;
+    setMode: React.Dispatch<React.SetStateAction<TrackViewMode>>;
 }
 
 const bodyStyle: CSSProperties = {
@@ -23,7 +26,7 @@ const bodyStyle: CSSProperties = {
 }
 
 export default function ListTracks(props: Props) {
-    const { token, playlists, setPlaylists, savedTracks, setSavedTracks } = props;
+    const { token, playlists, setPlaylists, savedTracks, setSavedTracks, mode, setMode } = props;
     const [isAllSavedTracksLoaded, setIsAllSavedTracksLoaded] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1); // 1 page = 50 tracks
     // どの曲がどのプレイリストに属しているかを保存する
@@ -44,7 +47,7 @@ export default function ListTracks(props: Props) {
         return playlistsTrackBelongTo.map((playlist) => playlist.id);
     }, []);
 
-    const getTracksRequired = useCallback(async (currentTracks: Track[], numTracksRequired: number, token: string) => {
+    const fetchMissingTracks = useCallback(async (currentTracks: Track[], numTracksRequired: number, token: string) => {
         if (isAllSavedTracksLoaded) {
             return currentTracks;
         }
@@ -67,12 +70,12 @@ export default function ListTracks(props: Props) {
         async function fetchData() {
             const playlistWithTracks = await fetchTracksToPlaylists(playlists);
             setPlaylists(playlistWithTracks);
-            const tracks = await getTracksRequired(savedTracks, currentPage * 50, token);
+            const tracks = await fetchMissingTracks(savedTracks, currentPage * 50, token);
             setSavedTracks(tracks);
         }
 
         fetchData();
-    }, [token, playlists, setPlaylists, fetchTracksToPlaylists, getTracksRequired, savedTracks, currentPage, setSavedTracks]);
+    }, [token, playlists, setPlaylists, fetchTracksToPlaylists, fetchMissingTracks, savedTracks, currentPage, setSavedTracks]);
 
     function sliceSavedTracks(tracks: Track[], startIndex: number, endIndex: number): Track[] {
         const end = Math.min(endIndex, tracks.length - 1); // 範囲の終点が配列の範囲外の場合は最後の要素まで取得する
@@ -97,12 +100,18 @@ export default function ListTracks(props: Props) {
                 <button onClick={() => setCurrentPage(currentPage - 1)}>Prev</button>}
             {(!isAllSavedTracksLoaded || savedTracks.length > (currentPage * 50)) &&
                 <button onClick={() => setCurrentPage(currentPage + 1)}>Next</button>}
+            <select value={mode} onChange={(e) => {setMode(e.target.value as TrackViewMode)}}>
+                <option value={TrackViewMode.DEFAULT}>Default</option>
+                <option value={TrackViewMode.HIGHLIGHT_NOT_IN_PLAYLIST}>Highlight not in playlist</option>
+                <option value={TrackViewMode.ONLY_NOT_IN_PLAYLIST}>Only not in playlist</option>
+            </select>
             <div style={{display: "flex", flexWrap: "wrap"  }}>
                 {getTracksFromCurrentPage(savedTracks, currentPage).map((track: Track) => {
                     return <TracksWithPlaylists
                     track={track}
                     playlists={playlists}
-                    mapTrackToPlaylists={mapTrackToPlaylists} />
+                    mapTrackToPlaylists={mapTrackToPlaylists}
+                    mode={mode} />
                 })}
             </div>
         </div>
