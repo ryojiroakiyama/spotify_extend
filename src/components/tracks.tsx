@@ -35,7 +35,8 @@ export default function TracksWithPlaylists(props: Props) {
 	})();
 
 	const playlistList = (playlistNameList: string[]) => {
-		return  <div style={{border: "solid 1px", marginTop: "15px"}}>
+		return  <div style={{borderTop: "solid 1px", marginTop: "15px"}}>
+					<div style={{fontSize: '0.9em'}}>playlists:</div>
 					{playlistNameList.map((playlistName) => {
 						return <div>{playlistName}</div>;
 					})}
