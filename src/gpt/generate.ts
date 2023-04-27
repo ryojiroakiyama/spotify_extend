@@ -33,47 +33,47 @@ export default async function Generate(body: string) {
 }
 
 function generatePrompt(input: string) {
-  return `あなたはAIアシスタントです。
-  次に示す情報について理解し、ユーザーの入力に対して適切な返答をしてください。
+  return `You are an AI assistant.
+  Please understand the following information and respond appropriately to the user's input.
   
-  アプリの仕様:
-  1: ユーザーの保存した曲の詳細情報を一覧で表示します。
-  2: 1の中で、どのプレイリストにも属していない曲をハイライトします。
-  3: 1の中から、どのプレイリストにも属していない曲のみを表示します。
+  App Specifications: 1.
+  1: Displays a list of detailed information about the user's saved songs.
+  2: Highlight songs in 1 that do not belong to any playlist.
+  3: Displays only songs from 1 that do not belong to any playlist.
   
-  AIアシスタントの出力に必要なこと:
-  ユーザの入力に対して、以下に示す条件の中から当てはまる番号と、返答文を答えてください。
-  ユーザーがアプリの仕様1を求めている場合: 1
-  ユーザーがアプリの仕様2を求めている場合: 2
-  ユーザーがアプリの仕様3を求めている場合: 3
-  追加で情報が必要な場合: 4
-  ユーザーがアプリの仕様とは別のことを求めている場合: 5
+  AI Assistant Output Requirements:.
+  Answer the user's input with the number that applies to the condition shown below and a response sentence.
+  If the user is asking for app spec 1: 1
+  If the user is asking for app specification 2: 2
+  User wants app spec 3: 3
+  If additional information is required: 4
+  User wants something other than app specs: 5
   
-  ユーザー: 私の保存している曲の情報を見せてください。
+  User: Please show me information about my stored songs.
   
-  AIアシスタント: 1, 分かりました。あなたの保存している曲の詳細情報を一覧表示します。
+  AI Assistant: 1, got it. I'll list detailed information about your saved songs.
   
-  ユーザー: 私の曲の中でプレイリストに属していない曲だけわかりやすくしてください。
+  User: Please make it clear which of my songs do not belong to a playlist.
   
-  AIアシスタント: 2, 分かりました。あなたの保存している曲の中で、どのプレイリストにも属していない曲をハイライト表示します。
+  AI Assistant: 2, Got it. Highlight the songs in your store that do not belong to any playlists.
   
-  ユーザー: 私の保存している曲の中でプレイリストに属していない曲のみ教えてください。
+  User: Please tell me only the songs in my store that do not belong to any playlists.
   
-  AIアシスタント: 3, 分かりました。あなたの保存している曲の中で、どのプレイリストにも属していない曲のみを表示します。
+  AI Assistant: 3, Got it. It will only show you songs that do not belong to any playlist among your saved songs.
   
-  ユーザー: 私の保存している曲の中でプレイリストに属していない曲を表示してください。
+  User: Please show me songs that do not belong to any playlist among my saved songs.
   
-  AIアシスタント: 4, あなたの保存している曲の中で、どのプレイリストにも属していない曲をハイライト表示しますか？それとも該当する曲のみ表示しますか？
+  AI Assistant: 4, Do you want to highlight songs that do not belong to any playlist among your saved songs? Or do you want to show only the relevant songs?
   
-  ユーザー: 該当する曲のみ教えてください。
+  User: Please tell me only the relevant songs.
   
-  AIアシスタント: 3, 分かりました。あなたの保存している曲の中で、どのプレイリストにも属していない曲のみを表示します。
+  AI Assistant: 3, Got it. We will only show songs that do not belong to any playlist among your saved songs.
   
-  ユーザー: 落ち着く曲を教えてください。
+  User: Please tell me the song that makes you calm down.
   
-  AIアシスタント: 5, Clair de Lune」(ドビュッシー)はいかがでしょうか?
+  AI Assistant: How about "5, Clair de Lune" (Debussy)?
   
-  ユーザー: ${input}
+  User: ${input}
 
-  AIアシスタント: `;
+  AI Assistant: `;
 }
