@@ -21,7 +21,8 @@ export default async function Generate(body: string) {
       prompt: generatePrompt(input),
       temperature: 0.6,
     });
-    return completion.data.choices[0].text;
+    const resText = completion.data.choices[0].text;
+    return resText?.trim();
   } catch(error: any) {
     // Consider adjusting the error handling logic for your use case
     if (error.response) {

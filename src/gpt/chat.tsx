@@ -16,13 +16,51 @@ export default function Chat() {
         throw new Error("Failed to chat with AI assistant");
       }
 
-      setResult(resText);
+      chatToAction(resText);
       setInput("");
     } catch(error: any) {
       // Consider implementing your own error handling logic here
       console.error(error);
       alert(error.message);
     }
+  }
+
+  function parseResponse(resText: string) {
+    const regex = /^(\d+),\s+(.*)$/;
+    const matches = resText.match(regex);
+    if (!matches) {
+      return null;
+    }
+    const number = matches[1];
+    const sentence = matches[2];
+
+    return { number, sentence };
+  }
+
+  function chatToAction(resText: string) {
+    const { number, sentence } = parseResponse(resText)!;
+
+    switch (number) {
+      case "1":
+        console.log("action: 1");
+        break;
+      case "2":
+        console.log("action: 2");
+        break;
+      case "3":
+        console.log("action: 3");
+        break;
+      case "4":
+        console.log("action: 4");
+        break;
+      case "5":
+        console.log("action: 5");
+        break;
+      default:
+        console.log("action: default");
+        break;
+    }
+    setResult(sentence);
   }
 
   return (
