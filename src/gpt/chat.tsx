@@ -2,22 +2,22 @@ import { useState } from "react";
 import Generate from "./generate";
 
 export default function Chat() {
-  const [animalInput, setAnimalInput] = useState("");
+  const [input, setInput] = useState("");
   const [result, setResult] = useState("");
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     try {
-      const reqText = JSON.stringify({ animal: animalInput });
+      const reqText = JSON.stringify({ input });
       const resText = await Generate(reqText);
 
       if (!resText) {
-        throw new Error("Failed to generate names");
+        throw new Error("Failed to chat with AI assistant");
       }
 
       setResult(resText);
-      setAnimalInput("");
+      setInput("");
     } catch(error: any) {
       // Consider implementing your own error handling logic here
       console.error(error);
@@ -25,26 +25,25 @@ export default function Chat() {
     }
   }
 
-
-//TODO: 手順
-//1. 見た目を整形
-//2. プロンプトを追加して、その返り値をそのまま表示して、プロンプトをテストする
-//   プロンプト内容: trackを参照するか、さらにモードを変更するか、その他
-//3. アクションを入れる
   return (
     <>
-        <h3>Name my pet</h3>
+        <h3>Chat with an AI Assistant</h3>
         <form onSubmit={onSubmit}>
-          <input
-            type="text"
-            name="animal"
-            placeholder="Enter an animal"
-            value={animalInput}
-            onChange={(e) => setAnimalInput(e.target.value)}
-          />
-          <input type="submit" value="Generate names" />
+          <div>
+            <textarea
+              name="animal"
+              style={{ height: 100, width: 300 }}
+              placeholder="Ask me anything or just say hi!"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+            />
+          </div>
+          <div>
+            <input type="submit" value="submit" />
+          </div>
         </form>
-        <div>result: {result}</div>
+        <div style={{margin: '10px'}}>response:</div>
+        <div style={{margin: '5px'}}>{result}</div>
     </>
   );
 }
