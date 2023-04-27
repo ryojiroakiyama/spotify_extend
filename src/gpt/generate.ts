@@ -21,7 +21,6 @@ export default async function Generate(body: string) {
       prompt: generatePrompt(input),
       temperature: 0.6,
     });
-    console.log(completion.data);
     return completion.data.choices[0].text;
   } catch(error: any) {
     // Consider adjusting the error handling logic for your use case
