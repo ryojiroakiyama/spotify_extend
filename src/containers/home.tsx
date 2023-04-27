@@ -8,7 +8,7 @@ import Profile from '../components/profile';
 import ListTracks from './list_tracks';
 import Chat from '../gpt/chat';
 
-const menu = {
+export const menu = {
   listTracks: "List Tracks",
 }
 
@@ -57,7 +57,7 @@ function Home(props: Pops) {
         </div>
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginLeft: '100px'}}>
           <div>
-            <Chat />
+            <Chat setSelect={setSelect} setMode={setMode} />
           </div>
         </div>
       </div>

@@ -1,7 +1,16 @@
 import { useState } from "react";
+
+import { menu, TrackViewMode } from "../containers/home";
+
 import Generate from "./generate";
 
-export default function Chat() {
+interface Props {
+  setSelect: React.Dispatch<React.SetStateAction<string | null>>;
+  setMode: React.Dispatch<React.SetStateAction<TrackViewMode>>;
+}
+
+export default function Chat(props: Props) {
+  const { setSelect, setMode } = props;
   const [input, setInput] = useState("");
   const [result, setResult] = useState("");
 
@@ -43,11 +52,17 @@ export default function Chat() {
     switch (number) {
       case "1":
         console.log("action: 1");
+        setSelect(menu.listTracks);
+        setMode(TrackViewMode.DEFAULT);
         break;
       case "2":
+        setSelect(menu.listTracks);
+        setMode(TrackViewMode.HIGHLIGHT_NOT_IN_PLAYLIST);
         console.log("action: 2");
         break;
       case "3":
+        setSelect(menu.listTracks);
+        setMode(TrackViewMode.ONLY_NOT_IN_PLAYLIST);
         console.log("action: 3");
         break;
       case "4":
