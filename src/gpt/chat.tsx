@@ -80,7 +80,7 @@ export default function Chat(props: Props) {
 
   return (
     <>
-        <h3>Chat with an AI Assistant</h3>
+        <h2>Chat with an AI Assistant</h2>
         <form onSubmit={onSubmit}>
           <div>
             <textarea
