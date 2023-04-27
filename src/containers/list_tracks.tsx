@@ -97,9 +97,9 @@ export default function ListTracks(props: Props) {
     return (
         <div style={bodyStyle}>
             {currentPage > 1 &&
-                <button onClick={() => setCurrentPage(currentPage - 1)}>Prev</button>}
+                <button onClick={() => setCurrentPage(currentPage - 1)}>Prev 50</button>}
             {(!isAllSavedTracksLoaded || savedTracks.length > (currentPage * 50)) &&
-                <button onClick={() => setCurrentPage(currentPage + 1)}>Next</button>}
+                <button onClick={() => setCurrentPage(currentPage + 1)}>Next 50</button>}
             <select value={mode} onChange={(e) => {setMode(e.target.value as TrackViewMode)}}>
                 <option value={TrackViewMode.DEFAULT}>Default</option>
                 <option value={TrackViewMode.HIGHLIGHT_NOT_IN_PLAYLIST}>Highlight not in playlist</option>
