@@ -37,7 +37,7 @@ function App() {
   return (
     <>
       {token === null ? 
-        <div>Loading ...</div>
+        <div>Loading token ...</div>
         :
         <Home token={token} />
       }

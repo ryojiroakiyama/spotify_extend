@@ -1,5 +1,5 @@
 import { useEffect, useState, CSSProperties, useCallback } from 'react';
-import { getSavedTracks, getTracksFromPlaylist, isTrackBelongToPlaylist } from '../utils/getFuncs';
+import { getSavedTracks, getTracksFromPlaylist, isTrackBelongToPlaylist, createNewPlaylist } from '../utils/apiFuncs';
 import { Track, PlaylistWithTracks, UserProfile } from '../../types/types';
 import { TrackViewMode } from './home';
 
@@ -26,7 +26,7 @@ const bodyStyle: CSSProperties = {
 }
 
 export default function ListTracks(props: Props) {
-    const { token, playlists, setPlaylists, savedTracks, setSavedTracks, mode, setMode } = props;
+    const { token, playlists, setPlaylists, savedTracks, setSavedTracks, mode, setMode, profile } = props;
     const [isAllSavedTracksLoaded, setIsAllSavedTracksLoaded] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1); // 1 page = 50 tracks
     // どの曲がどのプレイリストに属しているかを保存する
@@ -100,6 +100,7 @@ export default function ListTracks(props: Props) {
                 <button onClick={() => setCurrentPage(currentPage - 1)}>Prev 50</button>}
             {(!isAllSavedTracksLoaded || savedTracks.length > (currentPage * 50)) &&
                 <button onClick={() => setCurrentPage(currentPage + 1)}>Next 50</button>}
+            <button onClick={() => createNewPlaylist(`FromReact${new Date().getTime()}`, profile.id, token)}>create playlist</button>
             <select value={mode} onChange={(e) => {setMode(e.target.value as TrackViewMode)}}>
                 <option value={TrackViewMode.DEFAULT}>Default</option>
                 <option value={TrackViewMode.HIGHLIGHT_NOT_IN_PLAYLIST}>Highlight not in playlist</option>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { UserProfile, PlaylistWithTracks, Track } from '../../types/types';
 import { fetchWebApiEndpoint } from '../utils/api';
-import { getMyPlaylists } from '../utils/getFuncs';
+import { getMyPlaylists } from '../utils/apiFuncs';
 
 import Profile from '../components/profile';
 import ListTracks from './list_tracks';
@@ -46,7 +46,7 @@ function Home(props: Pops) {
   }, [token]);
 
 	if (profile === null || playlists === null) {
-		return <div>Loading ...</div>;
+		return <div>Loading profile/playlists ...</div>;
 	}
 
   return (

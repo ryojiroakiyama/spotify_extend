@@ -17,6 +17,20 @@ export async function fetchWebApiEndpoint(endpoint: string, token: string) {
   return await res.json();  
 }
 
+export async function postWebApiEndpoint(endpoint: string, token: string, data: object) {
+  const url = spotifyUrl(endpoint);
+  const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+  });
+
+  return await res.json();
+}
+
 function spotifyUrl(endpoint: string) {
     return `https://api.spotify.com/${endpoint}`;
 }

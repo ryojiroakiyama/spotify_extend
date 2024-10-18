@@ -1,4 +1,4 @@
-import { fetchAllItems, fetchWebApiEndpoint } from "./api";
+import { fetchAllItems, fetchWebApiEndpoint, postWebApiEndpoint } from "./api";
 import { Track, Playlist, PlaylistWithTracks } from '../../types/types';
 
 export async function getSavedTracks(offset: number, token: string) {
@@ -43,4 +43,23 @@ export const isTrackBelongToPlaylist = (track: Track, playlist: PlaylistWithTrac
         }
     }
     return false;
+}
+
+export async function createNewPlaylist(name: string, userId: string, token: string) {
+    const endpoint = `v1/users/${userId}/playlists`;
+
+    const postData = {
+        name: name,
+        description: "New playlist from React App",
+        public: false
+    };
+
+    const res = await postWebApiEndpoint(endpoint, token, postData);
+    if (res.error) {
+        throw new Error(res.error.message);
+    }
+
+    // 参考URL: https://developer.spotify.com/documentation/web-api/reference/create-playlist
+    //TODO: responseのplaylist_idと, savedTracksのuriをつめたbodyで以下のAPIを叩きプレイリストに曲を詰める
+    // 参考: https://developer.spotify.com/documentation/web-api/reference/add-tracks-to-playlist
 }
