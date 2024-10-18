@@ -59,7 +59,18 @@ export async function createNewPlaylist(name: string, userId: string, token: str
         throw new Error(res.error.message);
     }
 
-    // 参考URL: https://developer.spotify.com/documentation/web-api/reference/create-playlist
-    //TODO: responseのplaylist_idと, savedTracksのuriをつめたbodyで以下のAPIを叩きプレイリストに曲を詰める
-    // 参考: https://developer.spotify.com/documentation/web-api/reference/add-tracks-to-playlist
+    console.log("==================>:", res.id)
+
+    // TODO: 以下別関数へ
+    const endpoint2 = `v1/playlists/${res.id}/tracks`;
+
+    const postData2 = {
+        // TODO: savedTracksのuriを20個くらい詰める
+        uris: ["spotify:track:0o5wusLgOl9yWjXzUF1SEJ"]
+    }
+
+    const res2 = await postWebApiEndpoint(endpoint2, token, postData2);
+    if (res2.error) {
+        throw new Error(res2.error.message);
+    }
 }
