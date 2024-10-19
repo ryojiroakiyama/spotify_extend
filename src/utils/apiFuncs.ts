@@ -15,6 +15,30 @@ export async function getSavedTracks(offset: number, token: string) {
     return [tracks, hasNext];
 }
 
+export async function getAllSavedTracks(token: string) {
+    let offset = 0;
+    const limit = 50;
+    let allTracks: Track[] = [];
+    let hasNext = true;
+
+    while (hasNext) {
+        const endpoint = `v1/me/tracks?offset=${offset}&limit=${limit}`;
+        
+        const response = await fetchWebApiEndpoint(endpoint, token);
+        if (response.error) {
+            throw new Error(response.error.message);
+        }
+
+        const tracks = response.items.map((item: any) => item.track);
+        allTracks = allTracks.concat(tracks);
+        hasNext = response.next !== null;
+        offset += limit;  // 次のページのオフセットを更新
+    }
+
+    return allTracks;
+}
+
+
 export async function getMyPlaylists(token: string, myId: string) {
     let playlists: Playlist[] = [];
 
@@ -34,6 +58,23 @@ export async function getTracksFromPlaylist(playlistId: string, token: string) {
     tracks = tracks.concat(tracksItems.map((item: any) => item.track));
 
     return tracks;
+}
+
+export async function getPlaylistsWithTracks(playlists: Playlist[], token: string): Promise<PlaylistWithTracks[]> {
+    let playlistWithTracks: PlaylistWithTracks[] = [];
+
+    for (let i = 0; i < playlists.length; i++) {
+        // まず、現在のプレイリストの情報をコピーし、新しいオブジェクトを作成
+        const playlistInfo: PlaylistWithTracks = {
+            ...playlists[i],
+            tracks: await getTracksFromPlaylist(playlists[i].id, token)
+        };
+
+        // 新しく作成したオブジェクトを配列に追加
+        playlistWithTracks.push(playlistInfo);
+    }
+    
+    return playlistWithTracks;
 }
 
 export const isTrackBelongToPlaylist = (track: Track, playlist: PlaylistWithTracks): boolean => {

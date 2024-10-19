@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { UserProfile, PlaylistWithTracks, Track } from '../../types/types';
 import { fetchWebApiEndpoint } from '../utils/api';
-import { getMyPlaylists } from '../utils/apiFuncs';
+import { getAllSavedTracks, getPlaylistsWithTracks, getMyPlaylists, addTracksToPlaylist, createNewPlaylist } from '../utils/apiFuncs';
 
 import Profile from '../components/profile';
 import ListTracks from './list_tracks';
@@ -10,6 +10,7 @@ import Chat from '../gpt/chat';
 
 export const menu = {
   listTracks: "List Tracks",
+  saveUnorganizedTracks: "Save SaveUnorganized Tracks"
 }
 
 type Pops = {
@@ -45,6 +46,49 @@ function Home(props: Pops) {
 		fetchData();
   }, [token]);
 
+  useEffect(() => {
+    // 非同期処理を行う関数を定義
+    async function fetchAndProcessTracks() {
+        if (select !== menu.saveUnorganizedTracks || playlists === null || profile === null) {
+          return
+        }
+
+        const allSavedTracks = await getAllSavedTracks(token);
+        const playlistsWithTracks = await getPlaylistsWithTracks(playlists, token)
+
+        const trackInPlaylistMap = new Map<string, boolean>();
+        playlistsWithTracks.forEach(playlist => {
+            playlist.tracks.forEach(track => {
+                trackInPlaylistMap.set(track.id, true);
+            });
+        });
+
+        const trackURIs: string[] = [];
+        const maxTracks = 30;
+
+        // トラックの配列を逆順に処理して、所属していないトラックを検索
+        for (let i = allSavedTracks.length - 1; i >= 0 && trackURIs.length < maxTracks; i--) {
+            const track = allSavedTracks[i];
+
+            // プレイリストに所属していないトラックを探す
+            if (!trackInPlaylistMap.has(track.id)) {
+                trackURIs.push(track.uri); // URIを配列に追加
+            }
+        }
+
+        const playlistName = `FromReactApp_${new Date().getTime()}`;
+        const playlistId = await createNewPlaylist(playlistName, profile.id, token);
+
+        // 選ばれたトラックのURIを新しいプレイリストに追加
+        await addTracksToPlaylist(playlistId, trackURIs, token);
+
+        setSelect(null); // select状態を更新
+    }
+
+    // 定義した関数を呼び出す
+    fetchAndProcessTracks();
+}, [select, playlists, token, setSelect, profile]);
+
 	if (profile === null || playlists === null) {
 		return <div>Loading profile/playlists ...</div>;
 	}
@@ -61,8 +105,12 @@ function Home(props: Pops) {
           </div>
         </div>
       </div>
-      {select === null &&
+      {select === null && <>
         <button onClick={() => setSelect(menu.listTracks)}>{menu.listTracks}</button>
+        <button onClick={() => setSelect(menu.saveUnorganizedTracks)}>{menu.saveUnorganizedTracks}</button></>
+      }
+      {select === menu.saveUnorganizedTracks &&
+        <>saving...</>
       }
       {select === menu.listTracks &&
         <ListTracks
