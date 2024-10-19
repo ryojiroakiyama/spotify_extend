@@ -45,7 +45,7 @@ export const isTrackBelongToPlaylist = (track: Track, playlist: PlaylistWithTrac
     return false;
 }
 
-export async function createNewPlaylist(name: string, userId: string, token: string) {
+export async function createNewPlaylist(name: string, userId: string, token: string): Promise<string> {
     const endpoint = `v1/users/${userId}/playlists`;
 
     const postData = {
@@ -59,18 +59,18 @@ export async function createNewPlaylist(name: string, userId: string, token: str
         throw new Error(res.error.message);
     }
 
-    console.log("==================>:", res.id)
+    return res.id;
+}
 
-    // TODO: 以下別関数へ
-    const endpoint2 = `v1/playlists/${res.id}/tracks`;
+export async function addTracksToPlaylist(playlistId: string, tracks: string[], token: string): Promise<void> {
+    const endpoint = `v1/playlists/${playlistId}/tracks`;
 
-    const postData2 = {
-        // TODO: savedTracksのuriを20個くらい詰める
-        uris: ["spotify:track:0o5wusLgOl9yWjXzUF1SEJ"]
-    }
+    const postData = {
+        uris: tracks
+    };
 
-    const res2 = await postWebApiEndpoint(endpoint2, token, postData2);
-    if (res2.error) {
-        throw new Error(res2.error.message);
+    const res = await postWebApiEndpoint(endpoint, token, postData);
+    if (res.error) {
+        throw new Error(res.error.message);
     }
 }

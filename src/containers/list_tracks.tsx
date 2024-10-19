@@ -1,5 +1,5 @@
 import { useEffect, useState, CSSProperties, useCallback } from 'react';
-import { getSavedTracks, getTracksFromPlaylist, isTrackBelongToPlaylist, createNewPlaylist } from '../utils/apiFuncs';
+import { getSavedTracks, getTracksFromPlaylist, isTrackBelongToPlaylist, createNewPlaylist, addTracksToPlaylist } from '../utils/apiFuncs';
 import { Track, PlaylistWithTracks, UserProfile } from '../../types/types';
 import { TrackViewMode } from './home';
 
@@ -90,6 +90,13 @@ export default function ListTracks(props: Props) {
         return sliceSavedTracks(tracks, startIndex, end);
     }
 
+    async function saveTracksToPlaylist(tracks: Track[], profile: UserProfile, token: string) {
+        const playlistName = `FromReactApp_${new Date().getTime()}`
+        const playlistId = await createNewPlaylist(playlistName, profile.id, token);
+
+        await addTracksToPlaylist(playlistId, tracks.map(track => track.uri), token);
+    }
+
     if (savedTracks.length === 0) {
         return <div>Loading ...</div>;
     }
@@ -100,7 +107,11 @@ export default function ListTracks(props: Props) {
                 <button onClick={() => setCurrentPage(currentPage - 1)}>Prev 50</button>}
             {(!isAllSavedTracksLoaded || savedTracks.length > (currentPage * 50)) &&
                 <button onClick={() => setCurrentPage(currentPage + 1)}>Next 50</button>}
-            <button onClick={() => createNewPlaylist(`FromReact${new Date().getTime()}`, profile.id, token)}>create playlist</button>
+            <button onClick={() => {
+                saveTracksToPlaylist(savedTracks.slice(0, 20), profile, token);
+                setSavedTracks(savedTracks.slice(20));
+                }}>Save tracks to playlist
+            </button>
             <select value={mode} onChange={(e) => {setMode(e.target.value as TrackViewMode)}}>
                 <option value={TrackViewMode.DEFAULT}>Default</option>
                 <option value={TrackViewMode.HIGHLIGHT_NOT_IN_PLAYLIST}>Highlight not in playlist</option>
