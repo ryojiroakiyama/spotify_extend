@@ -108,9 +108,10 @@ export default function ListTracks(props: Props) {
             {(!isAllSavedTracksLoaded || savedTracks.length > (currentPage * 50)) &&
                 <button onClick={() => setCurrentPage(currentPage + 1)}>Next 50</button>}
             <button onClick={() => {
-                saveTracksToPlaylist(savedTracks.slice(0, 20), profile, token);
-                setSavedTracks(savedTracks.slice(20));
-                }}>Save tracks to playlist
+                const start = savedTracks.length - 20;
+                saveTracksToPlaylist(savedTracks.slice(start), profile, token);
+                setSavedTracks(savedTracks.slice(0, start));}}>
+                Save tracks to playlist
             </button>
             <select value={mode} onChange={(e) => {setMode(e.target.value as TrackViewMode)}}>
                 <option value={TrackViewMode.DEFAULT}>Default</option>
