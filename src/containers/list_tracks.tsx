@@ -90,12 +90,31 @@ export default function ListTracks(props: Props) {
         return sliceSavedTracks(tracks, startIndex, end);
     }
 
-    async function saveTracksToPlaylist(tracks: Track[], profile: UserProfile, token: string) {
+    async function saveTracksToPlaylist(savedTracks: Track[], mapTrackToPlaylists: Map<string, string[]>, profile: UserProfile, token: string) {
         const playlistName = `FromReactApp_${new Date().getTime()}`
         const playlistId = await createNewPlaylist(playlistName, profile.id, token);
-
-        await addTracksToPlaylist(playlistId, tracks.map(track => track.uri), token);
+    
+        const trackURIs: string[] = []; // トラックのURIを格納する配列
+        const maxTracks = 30; // 最大トラック数
+    
+        // tracks配列を逆順に処理
+        for (let i = savedTracks.length - 1; i >= 0; i--) {
+            const track = savedTracks[i];
+            const playlists = mapTrackToPlaylists.get(track.id);
+    
+            // プレイリストがない、または空のトラックを探す
+            if (!playlists || playlists.length === 0) {
+                trackURIs.push(track.uri); // URIを配列に追加
+                if (trackURIs.length === maxTracks) {
+                    break; // 20個のトラックが集まったらループを終了
+                }
+            }
+        }
+    
+        // 選ばれたトラックのURIをプレイリストに追加
+        await addTracksToPlaylist(playlistId, trackURIs, token);
     }
+    
 
     if (savedTracks.length === 0) {
         return <div>Loading ...</div>;
@@ -107,12 +126,7 @@ export default function ListTracks(props: Props) {
                 <button onClick={() => setCurrentPage(currentPage - 1)}>Prev 50</button>}
             {(!isAllSavedTracksLoaded || savedTracks.length > (currentPage * 50)) &&
                 <button onClick={() => setCurrentPage(currentPage + 1)}>Next 50</button>}
-            <button onClick={() => {
-                const start = savedTracks.length - 20;
-                saveTracksToPlaylist(savedTracks.slice(start), profile, token);
-                setSavedTracks(savedTracks.slice(0, start));}}>
-                Save tracks to playlist
-            </button>
+            <button onClick={() => {saveTracksToPlaylist(savedTracks, mapTrackToPlaylists, profile, token);}}>Save tracks to playlist</button>
             <select value={mode} onChange={(e) => {setMode(e.target.value as TrackViewMode)}}>
                 <option value={TrackViewMode.DEFAULT}>Default</option>
                 <option value={TrackViewMode.HIGHLIGHT_NOT_IN_PLAYLIST}>Highlight not in playlist</option>
