@@ -64,7 +64,7 @@ function Home(props: Pops) {
         });
 
         const trackURIs: string[] = [];
-        const maxTracks = 30;
+        const maxTracks = 100; // apiの仕様上MAX100
 
         // トラックの配列を逆順に処理して、所属していないトラックを検索
         for (let i = allSavedTracks.length - 1; i >= 0 && trackURIs.length < maxTracks; i--) {
