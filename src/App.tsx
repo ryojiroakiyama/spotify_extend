@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { redirectToAuthCodeFlow, getAccessToken } from './utils/auth';
 import Home from './containers/home';
 
-const clientId = "fe1e589d3d40496ba962cfb76cbe6ca0"; // Replace with your client id
+const clientId = process.env.REACT_APP_SPOTIFY_CLIENT_KEY; // Replace with your client id
 
 function App() {
   const [token, setToken] = useState<string | null>(null);
@@ -14,6 +14,9 @@ function App() {
       const code = params.get("code");
 
       if (code == null) {
+        if (typeof clientId !== 'string') {
+          throw new Error("REACT_APP_SPOTIFY_CLIENT_KEY is not defined");
+        }
         redirectToAuthCodeFlow(clientId);
       } else {
         checkAccessToken(code);
@@ -24,6 +27,9 @@ function App() {
   }, []);
 
   async function checkAccessToken(code: string) {
+    if (typeof clientId !== 'string') {
+      throw new Error("REACT_APP_SPOTIFY_CLIENT_KEY is not defined");
+    }
     const accessToken = await getAccessToken(clientId, code);
     
     // MEMO: strictModeによって二度レンダリングが行われる->重複してリクエストを送ると二度目が失敗する。
